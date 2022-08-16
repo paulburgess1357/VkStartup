@@ -1,0 +1,13 @@
+# Format Style Options - Created with Clang Power Tools
+---
+BasedOnStyle: Google
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
+ColumnLimit: 120
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+SortIncludes: false
+AlignOperands: true
+PenaltyBreakAssignment: 50
+...
