@@ -24,8 +24,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFiles})
 
 target_link_libraries(${TargetName}
     CONAN_PKG::VkShared
-	CONAN_PKG::vulkan-loader
-    CONAN_PKG::vulkan-memory-allocator
+    CONAN_PKG::vulkan-loader
 )
 
 install(TARGETS ${TargetName})
