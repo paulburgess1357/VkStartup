@@ -160,6 +160,7 @@ void InitContext::init_logical_device() {
   logical_create_info.ppEnabledLayerNames = m_options.required_layers.data();
   logical_create_info.enabledExtensionCount = static_cast<uint32_t>(m_options.required_device_extensions.size());
   logical_create_info.ppEnabledExtensionNames = m_options.required_device_extensions.data();
+  logical_create_info.pNext = nullptr;
 
   m_context.device = std::make_unique<VkDeviceHandle>(logical_create_info,
                                                       m_context.physical_device_info.vk_physical_device);

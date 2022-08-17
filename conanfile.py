@@ -18,8 +18,7 @@ class HelloConan(ConanFile):
     exports_sources = "CMakeLists.txt", "VkStartup/*"
     requires = [
                 "VkShared/0.1",
-                "vulkan-loader/1.3.216.0", 
-                "vulkan-memory-allocator/3.0.0"
+                "vulkan-loader/1.3.216.0"
                 ]
 
     def config_options(self):
