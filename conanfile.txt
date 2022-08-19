@@ -1,0 +1,14 @@
+[requires]
+vulkan-loader/1.3.216.0
+
+[generators]
+cmake
+CMakeDeps
+CMakeToolchain
+
+[options]
+vulkan-loader:shared=True
+
+[imports]
+bin, *.dll -> ./bin
+lib, *.dylib* -> ./bin
