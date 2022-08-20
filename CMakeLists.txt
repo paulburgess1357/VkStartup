@@ -17,7 +17,7 @@ set(DEP_VkShared VkShared)
 message("\nCloning VkShared...")
 FetchContent_Declare(
  ${DEP_VkShared}
-  GIT_REPOSITORY git@github.com:paulburgess1357/VkShared.git
+  GIT_REPOSITORY https://github.com/paulburgess1357/VkShared.git
   GIT_TAG        master
 )
 FetchContent_MakeAvailable(${DEP_VkShared})
