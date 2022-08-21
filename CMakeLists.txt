@@ -14,10 +14,10 @@ add_library(${TargetName} STATIC ${SourceFiles} ${HeaderFiles})
 set_target_properties(${TargetName} PROPERTIES DEBUG_POSTFIX d)
 
 set(DEP_VkShared VkShared)
-message("\nCloning VkShared...")
+message("\nCloning VkShared... (GitHub SSH key setup required)")
 FetchContent_Declare(
  ${DEP_VkShared}
-  GIT_REPOSITORY https://github.com/paulburgess1357/VkShared.git
+   GIT_REPOSITORY git@github.com:paulburgess1357/VkShared.git
   GIT_TAG        master
 )
 FetchContent_MakeAvailable(${DEP_VkShared})
