@@ -10,41 +10,36 @@ file(GLOB_RECURSE HeaderFiles CONFIGURE_DEPENDS "${TargetName}/*.h")
 
 add_executable(${TargetName} ${SourceFiles} ${HeaderFiles})
 
-set(USE_CONAN FALSE)
-if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-	set(USE_CONAN TRUE)
-endif()
-
 set(DEP_VkShared VkShared)
 set(DEP_VkStartup VkStartup)
-if(USE_CONAN)
+
+set(IncludeDirectories ${CMAKE_CURRENT_SOURCE_DIR}/${TargetName} ${VkShared_SOURCE_DIR}/${DEP_VkShared} ${CMAKE_SOURCE_DIR}/${DEP_VkStartup})
+set(LinkDirectories ${DEP_VkShared} ${DEP_VkStartup})
+
+if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 	message("Using Conan for dependency management")
-	target_include_directories(${TargetName} PRIVATE 
-		${CMAKE_CURRENT_SOURCE_DIR}/${TargetName}
-		${CONAN_INCLUDE_DIRS}
-		${VkShared_SOURCE_DIR}/${DEP_VkShared}
-		${CMAKE_SOURCE_DIR}/${DEP_VkStartup}
-	)
-    target_link_libraries(${TargetName} 
-        CONAN_PKG::vulkan-loader
-		${DEP_VkShared}
-		${DEP_VkStartup}
-    )
+	if(NOT ConanSetupHasRun)
+		message("Loading Conan macros")
+		include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+		conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
+	endif()
+
+	list(APPEND IncludeDirectories ${CONAN_INCLUDE_DIRS})
+	list(APPEND LinkDirectories CONAN_PKG::vulkan-loader)
 else()
 	find_package(Vulkan REQUIRED)
-	
-	target_include_directories(${TargetName} PRIVATE 
-	    ${CMAKE_CURRENT_SOURCE_DIR}/${TargetName}
-		${Vulkan_INCLUDE_DIR}
-		${VkShared_SOURCE_DIR}/${DEP_VkShared}
-		${CMAKE_SOURCE_DIR}/${DEP_VkStartup}
-	)
-	target_link_libraries(${TargetName} 
-		${Vulkan_LIBRARIES}
-		${DEP_VkShared}
-		${DEP_VkStartup}
-	)
+	list(APPEND IncludeDirectories ${Vulkan_INCLUDE_DIR})
+	list(APPEND LinkDirectories ${Vulkan_LIBRARIES})
 endif()
+
+target_include_directories(${TargetName} PRIVATE 
+	${IncludeDirectories}
+)
+target_link_libraries(${TargetName} 
+	${LinkDirectories}
+)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${HeaderFiles})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFiles})  
+
+install(TARGETS ${TargetName})
