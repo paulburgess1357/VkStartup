@@ -8,7 +8,7 @@
 
 namespace VulkanUtilities::VkStartup {
 void InitContext::init() {
-  VkTrace("VkStartup Running");
+  VkTrace("Running VkStartup");
   init_instance();
   init_physical_device();
   init_logical_device();
@@ -21,6 +21,13 @@ void InitContext::init_instance() {
   vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr);
   std::vector<VkExtensionProperties> supported_extensions{extension_count};
   vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, supported_extensions.data());
+  VkInstanceCreateFlags instance_flags{0};
+
+  // MacOS Portability
+#ifdef __APPLE__
+  m_options.required_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+  instance_flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
   // Check required extensions
   std::vector<const char*> extensions;
@@ -101,6 +108,7 @@ void InitContext::init_instance() {
   create_info.ppEnabledExtensionNames = extensions.data();
   create_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
   create_info.ppEnabledLayerNames = layers.data();
+  create_info.flags = instance_flags;
 
   // Debug instance creation
   const auto instance_debug = VkDebugger::instance_debug_create_info();
@@ -160,7 +168,6 @@ void InitContext::init_logical_device() {
   logical_create_info.ppEnabledLayerNames = m_options.required_layers.data();
   logical_create_info.enabledExtensionCount = static_cast<uint32_t>(m_options.required_device_extensions.size());
   logical_create_info.ppEnabledExtensionNames = m_options.required_device_extensions.data();
-  logical_create_info.pNext = nullptr;
 
   m_context.device = std::make_unique<VkDeviceHandle>(logical_create_info,
                                                       m_context.physical_device_info.vk_physical_device);
