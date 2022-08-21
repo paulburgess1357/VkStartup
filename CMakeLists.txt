@@ -30,7 +30,7 @@ endif()
 if(USE_CONAN)
 	message("Using Conan for dependency management")
 	include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-	conan_basic_setup(TARGETS)
+	conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
 	target_include_directories(${TargetName} PRIVATE 
 		${CMAKE_CURRENT_SOURCE_DIR}/${TargetName}
 		${CONAN_INCLUDE_DIRS}
