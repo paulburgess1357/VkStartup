@@ -88,6 +88,10 @@ void InitContext::init_instance() {
     }
   }
 
+  // Check and remove duplicate entries
+  layers = remove_duplicates(layers);
+  extensions = remove_duplicates(extensions);
+
   // Update layers in context options as it needs to be
   // known when the logical device is created.  Extensions
   // for instance / physical device can be different, so we
@@ -157,6 +161,10 @@ void InitContext::init_logical_device() {
     queue_create_info.pQueuePriorities = &queue_priority;
     queue_create_infos.push_back(queue_create_info);
   }
+
+  // TODO check for device extension suport (required and desired) - maybe do it in physical device class instead
+  // TODO though, and update context options
+  // TODO afterwards, remove duplicates.
 
   // Create logical device
   // ReSharper disable once CppUseStructuredBinding
