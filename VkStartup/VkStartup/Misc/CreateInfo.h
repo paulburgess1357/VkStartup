@@ -38,6 +38,6 @@ inline [[nodiscard]] VkDeviceCreateInfo vk_device_create_info() {
   info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   info.pNext = nullptr;
   return info;
-};
+}
 
 }  // namespace VulkanUtilities::VkStartup::CreateInfo

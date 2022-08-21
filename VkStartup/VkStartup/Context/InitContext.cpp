@@ -88,10 +88,6 @@ void InitContext::init_instance() {
     }
   }
 
-  // Check and remove duplicate entries
-  layers = remove_duplicates(layers);
-  extensions = remove_duplicates(extensions);
-
   // Update layers in context options as it needs to be
   // known when the logical device is created.  Extensions
   // for instance / physical device can be different, so we
@@ -136,7 +132,8 @@ void InitContext::init_physical_device() {
     m_context.physical_device_info = m_options.custom_physical_device_criteria->physical_device_info();
   } else {
     // Default physical device selection
-    PhysicalDeviceDefault default_physical_device{m_context.vk_instance};
+    PhysicalDeviceDefault default_physical_device{m_context.vk_instance, m_options.desired_device_extensions,
+                                                  m_options.required_device_extensions};
     m_context.physical_device_info = default_physical_device.physical_device_info();
   }
 }
@@ -152,7 +149,7 @@ void InitContext::init_logical_device() {
   std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
   queue_create_infos.reserve(unique_family_indices.size());
 
-  constexpr float queue_priority = 1.0f;
+  constexpr float queue_priority{1.0f};
   for (const auto& index : unique_family_indices) {
     // ReSharper disable once CppUseStructuredBinding
     auto queue_create_info = CreateInfo::vk_device_queue_create_info();
@@ -162,10 +159,6 @@ void InitContext::init_logical_device() {
     queue_create_infos.push_back(queue_create_info);
   }
 
-  // TODO check for device extension suport (required and desired) - maybe do it in physical device class instead
-  // TODO though, and update context options
-  // TODO afterwards, remove duplicates.
-
   // Create logical device
   // ReSharper disable once CppUseStructuredBinding
   auto logical_create_info = CreateInfo::vk_device_create_info();
@@ -174,8 +167,10 @@ void InitContext::init_logical_device() {
   logical_create_info.pEnabledFeatures = &m_context.physical_device_info.features_to_activate;
   logical_create_info.enabledLayerCount = static_cast<uint32_t>(m_options.required_layers.size());
   logical_create_info.ppEnabledLayerNames = m_options.required_layers.data();
-  logical_create_info.enabledExtensionCount = static_cast<uint32_t>(m_options.required_device_extensions.size());
-  logical_create_info.ppEnabledExtensionNames = m_options.required_device_extensions.data();
+
+  logical_create_info.enabledExtensionCount = static_cast<uint32_t>(
+      m_context.physical_device_info.device_extensions.size());
+  logical_create_info.ppEnabledExtensionNames = m_context.physical_device_info.device_extensions.data();
 
   m_context.device = std::make_unique<VkDeviceHandle>(logical_create_info,
                                                       m_context.physical_device_info.vk_physical_device);

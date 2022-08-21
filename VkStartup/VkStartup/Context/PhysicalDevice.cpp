@@ -6,7 +6,10 @@
 
 namespace VulkanUtilities::VkStartup {
 
-PhysicalDevice::PhysicalDevice(VkInstance instance) : m_vk_instance{instance} {
+PhysicalDevice::PhysicalDevice(VkInstance instance, std::vector<const char*> desired_device_extension,
+                               std::vector<const char*> required_device_extensions)
+    : m_desired_device_extensions{std::move(desired_device_extension)},
+      m_required_device_extensions{std::move(required_device_extensions)}, m_vk_instance{instance} {
 }
 
 PhysicalDeviceInfo PhysicalDevice::physical_device_info() {
@@ -17,6 +20,7 @@ PhysicalDeviceInfo PhysicalDevice::physical_device_info() {
   info.vk_physical_device = m_vk_physical_device;
   info.vk_queue_family_indices = m_queue_indices;
   info.features_to_activate = m_device_features_to_activate;
+  info.device_extensions = device_extensions_to_use(m_vk_physical_device);
   return info;
 }
 
@@ -93,6 +97,46 @@ void PhysicalDevice::set_queue_indices() {
     }
     m_queue_indices[transfer] = i;
   }
+}
+
+bool PhysicalDevice::extension_supported(const std::vector<VkExtensionProperties>& supported,
+                                         const char* value_to_check) {
+  for (const auto& val : supported) {
+    if (strcmp(val.extensionName, value_to_check) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+std::vector<const char*> PhysicalDevice::device_extensions_to_use(VkPhysicalDevice device) const {
+  // Check extensions
+  uint32_t extension_count{0};
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
+  std::vector<VkExtensionProperties> supported_extensions{extension_count};
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, supported_extensions.data());
+
+  // Check required extensions
+  std::vector<const char*> extensions;
+  for (const auto& value : m_required_device_extensions) {
+    if (extension_supported(supported_extensions, value)) {
+      extensions.push_back(value);
+    } else {
+      VkError("Required Device Extension: " + std::string{value} + " is not supported");
+      throw Exceptions::VkStartupException();
+    }
+  }
+
+  // Check desired extensions
+  for (const auto& value : m_desired_device_extensions) {
+    if (extension_supported(supported_extensions, value)) {
+      extensions.push_back(value);
+    } else {
+      VkWarning("Device Extension: " + std::string{value} + " is not supported");
+    }
+  }
+
+  return extensions;
 }
 
 void PhysicalDeviceDefault::select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) {

@@ -3,6 +3,7 @@
 #include "VkStartup/Context/PhysicalDevice.h"
 #include <vector>
 #include <unordered_set>
+#include <type_traits>
 
 namespace VulkanUtilities::VkStartup {
 
@@ -40,12 +41,6 @@ class InitContext {
                                                 const char* value_to_check);
   [[nodiscard]] static bool layer_supported(const std::vector<VkLayerProperties>& supported,
                                             const char* value_to_check);
-  template <typename T>
-  [[nodiscard]] static std::vector<T> remove_duplicates(const std::vector<T>& input) {
-    std::unordered_set<T> input_set(input.begin(), input.end());
-    std::vector<T> unique_vector(input_set.begin(), input_set.end());
-    return unique_vector;
-  }
 
   InitContextOptions m_options;
   VkContext m_context;
