@@ -4,7 +4,7 @@
 namespace VulkanUtilities::VkStartup::Exceptions {
 class VkStartupException final : public std::exception {
  public:
-  [[nodiscard]] char const* what() const override {
+  [[nodiscard]] const char* what() const noexcept override {
     return "VkStartup failed";
   }
 };

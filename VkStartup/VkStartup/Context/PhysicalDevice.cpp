@@ -3,6 +3,7 @@
 #include "VkShared/Macros.h"
 #include <vector>
 #include <map>
+#include <cstring>
 
 namespace VulkanUtilities::VkStartup {
 

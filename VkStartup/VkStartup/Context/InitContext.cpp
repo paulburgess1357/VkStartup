@@ -5,6 +5,7 @@
 #include "VkShared/Macros.h"
 #include <memory>
 #include <unordered_set>
+#include <cstring>
 
 namespace VulkanUtilities::VkStartup {
 void InitContext::init() {
