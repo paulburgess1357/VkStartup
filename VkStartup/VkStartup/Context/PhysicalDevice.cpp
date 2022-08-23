@@ -155,6 +155,12 @@ void PhysicalDeviceDefault::select_best_physical_device(const std::vector<VkPhys
     if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
       score += 1000;
     }
+
+    // Drop llvmpipe
+    if (strstr(properties.deviceName, "llvmpipe")) {
+      score -= 100000;
+    }
+
     score += static_cast<int>(properties.limits.maxImageDimension2D);
     if (device_meets_requirements(device, features)) {
       candidates.insert(std::make_pair(score, device));
