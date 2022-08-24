@@ -4,6 +4,6 @@ int main() {
   VulkanUtilities::VkStartup::InitContextOptions options;
   options.enable_validation = true;
 
-  VulkanUtilities::VkStartup::InitContext context{options};
+  VulkanUtilities::VkStartup::InitContext context{std::move(options)};
   return 0;
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_set>
 #include <type_traits>
+#include <memory>
 
 namespace VulkanUtilities::VkStartup {
 
@@ -20,8 +21,13 @@ struct InitContextOptions {
   std::vector<const char*> required_device_extensions{};
   std::vector<const char*> desired_device_extensions{};
 
-  // User physical device criteria.
-  std::shared_ptr<PhysicalDevice> custom_physical_device_criteria{};
+  // User defined physical device criteria.
+  // If not defined, the default device selection
+  // criteria will be used
+  // TODO test this (just make a copy of the default class and call it something else in VkTest)
+  std::unique_ptr<PhysicalDevice> custom_physical_device_criteria{};
+
+  // User defined surface creation (SDL, GLFW, etc.)
 };
 
 class InitContext {
