@@ -14,6 +14,7 @@ void InitContext::init() {
   init_physical_device();
   init_logical_device();
   init_queue_handles();
+  init_surface();
 }
 
 void InitContext::init_instance() {
@@ -192,6 +193,16 @@ void InitContext::init_queue_handles() {
     }
   }
 }
+
+void InitContext::init_surface() {
+  if (m_options.custom_surface_loader) {
+    m_options.custom_surface_loader->init(m_context.vk_instance);
+    m_context.surface_loader = std::move(m_options.custom_surface_loader);
+  } else {
+    VkWarning("No Surface loader supplied.  Vulkan will be initialized without a surface for drawing");
+  }
+}
+
 
 bool InitContext::extension_supported(const std::vector<VkExtensionProperties>& supported, const char* value_to_check) {
   for (const auto& val : supported) {

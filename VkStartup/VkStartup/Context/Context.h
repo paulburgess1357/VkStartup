@@ -2,6 +2,7 @@
 #include "VkStartup/Context/Debugger.h"
 #include "VkStartup/Handle/UsingHandle.h"
 #include "VkStartup/Context/PhysicalDevice.h"
+#include "VkStartup/Context/SurfaceLoader.h"
 #include "VkShared/Enums.h"
 #include <memory>
 
@@ -23,6 +24,8 @@ struct VkContext {
   VkDevice vk_device{VK_NULL_HANDLE};
 
   std::unordered_map<VkShared::Enums::QueueFamily, QueueIndexHandle> vk_queues{};
+
+  std::unique_ptr<VKStartup::SurfaceLoader> surface_loader{};
 };
 
 }  // namespace VulkanUtilities::VkStartup

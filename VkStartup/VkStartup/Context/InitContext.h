@@ -1,6 +1,7 @@
 #pragma once
 #include "VkStartup/Context/Context.h"
 #include "VkStartup/Context/PhysicalDevice.h"
+#include "VkStartup/Context/SurfaceLoader.h"
 #include <vector>
 #include <unordered_set>
 #include <type_traits>
@@ -28,6 +29,7 @@ struct InitContextOptions {
   std::unique_ptr<PhysicalDevice> custom_physical_device_criteria{};
 
   // User defined surface creation (SDL, GLFW, etc.)
+  std::unique_ptr<SurfaceLoader> custom_surface_loader{};
 };
 
 class InitContext {
@@ -42,6 +44,7 @@ class InitContext {
   void init_physical_device();
   void init_logical_device();
   void init_queue_handles();
+  void init_surface();
 
   [[nodiscard]] static bool extension_supported(const std::vector<VkExtensionProperties>& supported,
                                                 const char* value_to_check);
