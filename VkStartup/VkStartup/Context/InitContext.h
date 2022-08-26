@@ -29,7 +29,7 @@ struct InitContextOptions {
   std::unique_ptr<PhysicalDevice> custom_physical_device_criteria{};
 
   // User defined surface creation (SDL, GLFW, etc.)
-  std::unique_ptr<SurfaceLoader> custom_surface_loader{};
+  std::unique_ptr<VKStartup::SurfaceLoader> custom_surface_loader{};
 };
 
 class InitContext {

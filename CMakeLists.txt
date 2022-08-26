@@ -44,7 +44,7 @@ endif()
 target_include_directories(${TargetName} PRIVATE 
 	${IncludeDirectories}
 )
-target_link_libraries(${TargetName} 
+target_link_libraries(${TargetName} PRIVATE
 	${LinkDirectories}
 )
 

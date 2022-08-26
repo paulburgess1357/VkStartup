@@ -9,6 +9,7 @@ file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS "${TargetName}/*.cpp")
 file(GLOB_RECURSE HeaderFiles CONFIGURE_DEPENDS "${TargetName}/*.h")
 
 add_executable(${TargetName} ${SourceFiles} ${HeaderFiles})
+set_target_properties(${TargetName} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 set(DEP_VkShared VkShared)
 set(DEP_VkStartup VkStartup)
@@ -25,17 +26,21 @@ if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 	endif()
 
 	list(APPEND IncludeDirectories ${CONAN_INCLUDE_DIRS})
-	list(APPEND LinkDirectories CONAN_PKG::vulkan-loader)
+	list(APPEND LinkDirectories CONAN_PKG::vulkan-loader CONAN_PKG::glfw)
 else()
 	find_package(Vulkan REQUIRED)
 	list(APPEND IncludeDirectories ${Vulkan_INCLUDE_DIR})
 	list(APPEND LinkDirectories ${Vulkan_LIBRARIES})
+
+	find_package(glfw3 3.3 REQUIRED)
+	target_link_libraries(${TargetName} PRIVATE glfw)
+
 endif()
 
 target_include_directories(${TargetName} PRIVATE 
 	${IncludeDirectories}
 )
-target_link_libraries(${TargetName} 
+target_link_libraries(${TargetName} PRIVATE
 	${LinkDirectories}
 )
 
