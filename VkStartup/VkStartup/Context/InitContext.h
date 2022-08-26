@@ -12,8 +12,8 @@ namespace VulkanUtilities::VkStartup {
 struct InitContextOptions {
   // Instance
   uint32_t api_version{VK_API_VERSION_1_0};
-  std::vector<const char*> required_extensions{};
-  std::vector<const char*> desired_extensions{};
+  std::vector<const char*> required_instance_extensions{};
+  std::vector<const char*> desired_instance_extensions{};
   std::vector<const char*> required_layers{};
   std::vector<const char*> desired_layers{};
   bool enable_validation{false};
@@ -29,7 +29,7 @@ struct InitContextOptions {
   std::unique_ptr<PhysicalDevice> custom_physical_device_criteria{};
 
   // User defined surface creation (SDL, GLFW, etc.)
-  std::unique_ptr<VKStartup::SurfaceLoader> custom_surface_loader{};
+  std::unique_ptr<SurfaceLoader> custom_surface_loader{};
 };
 
 class InitContext {

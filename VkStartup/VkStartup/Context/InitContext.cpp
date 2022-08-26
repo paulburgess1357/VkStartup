@@ -27,13 +27,13 @@ void InitContext::init_instance() {
 
   // MacOS Portability
 #ifdef __APPLE__
-  m_options.required_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+  m_options.required_instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
   instance_flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 #endif
 
   // Check required extensions
   std::vector<const char*> extensions;
-  for (const auto& value : m_options.required_extensions) {
+  for (const auto& value : m_options.required_instance_extensions) {
     if (extension_supported(supported_extensions, value)) {
       extensions.push_back(value);
     } else {
@@ -43,7 +43,7 @@ void InitContext::init_instance() {
   }
 
   // Check desired extensions
-  for (const auto& value : m_options.desired_extensions) {
+  for (const auto& value : m_options.desired_instance_extensions) {
     if (extension_supported(supported_extensions, value)) {
       extensions.push_back(value);
     } else {

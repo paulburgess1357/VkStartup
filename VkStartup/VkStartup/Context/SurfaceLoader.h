@@ -1,7 +1,8 @@
 #pragma once
+#include "VkStartup/Misc/Exceptions.h"
 #include <vulkan/vulkan.h>
 
-namespace VulkanUtilities::VKStartup {
+namespace VulkanUtilities::VkStartup {
 
 class SurfaceLoader {
  public:
@@ -31,11 +32,11 @@ class SurfaceLoader {
 
   void init(VkInstance instance) {
     m_vk_instance = instance;
-    init_surface();
+    VkCheck(init_surface(), Exceptions::VkStartupException());
   }
 
  protected:
-  virtual void init_surface() const = 0;
+  [[nodiscard]] virtual VkResult init_surface() = 0;
   VkInstance m_vk_instance{VK_NULL_HANDLE};
   VkSurfaceKHR khr_surface{VK_NULL_HANDLE};
 
