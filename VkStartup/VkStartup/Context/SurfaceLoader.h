@@ -2,6 +2,7 @@
 #include "VkStartup/Misc/Exceptions.h"
 #include "VkShared/Macros.h"
 #include <vulkan/vulkan.h>
+#include <algorithm>
 
 namespace VulkanUtilities::VkStartup {
 
