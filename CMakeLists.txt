@@ -32,8 +32,14 @@ if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 	include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 	conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
 	set(ConanSetupHasRun True)
+	set(CONAN_INCLUDE_DIRS_FILTERED ${CONAN_INCLUDE_DIRS})
 
-	list(APPEND IncludeDirectories ${CONAN_INCLUDE_DIRS})
+	# Filter out packages not necessary for main library
+	list(REMOVE_ITEM CONAN_INCLUDE_DIRS_FILTERED 
+		${CONAN_INCLUDE_DIRS_GLFW}
+	)
+
+	list(APPEND IncludeDirectories ${CONAN_INCLUDE_DIRS_FILTERED})
 	list(APPEND LinkDirectories CONAN_PKG::vulkan-loader)
 else()
 	find_package(Vulkan REQUIRED)
