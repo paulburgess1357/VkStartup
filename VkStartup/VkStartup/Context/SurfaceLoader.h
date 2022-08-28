@@ -1,12 +1,18 @@
 #pragma once
 #include "VkStartup/Misc/Exceptions.h"
+#include "VkShared/Macros.h"
 #include <vulkan/vulkan.h>
 
 namespace VulkanUtilities::VkStartup {
 
 class SurfaceLoader {
  public:
-  SurfaceLoader() = default;
+  explicit SurfaceLoader(std::string id) : m_id{std::move(id)} {
+    if (std::ranges::find(unique_surface_ids, m_id) != unique_surface_ids.end()) {
+      VkError("The id: " + m_id + " already exists for a surface.  Surface ids must be unique!");
+    }
+    unique_surface_ids.push_back(m_id);
+  }
   virtual ~SurfaceLoader() {
     destroy_surface();
   }
@@ -30,6 +36,10 @@ class SurfaceLoader {
     return khr_surface;
   }
 
+  [[nodiscard]] std::string id() const {
+    return m_id;
+  }
+
   void init(VkInstance instance) {
     m_vk_instance = instance;
     VkCheck(init_surface(), Exceptions::VkStartupException());
@@ -50,6 +60,8 @@ class SurfaceLoader {
       vkDestroySurfaceKHR(m_vk_instance, khr_surface, nullptr);
     }
   }
+  std::string m_id{};
+  static inline std::vector<std::string> unique_surface_ids{};
 };
 
-}  // namespace VulkanUtilities::VKStartup
+}  // namespace VulkanUtilities::VkStartup

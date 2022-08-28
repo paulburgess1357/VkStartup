@@ -16,7 +16,11 @@ int main() {
   }
 
   // Load custom surface loader & extensions into options
-  options.custom_surface_loader = std::make_unique<VulkanUtilities::VkStartupTest::GLFWSurfaceLoader>(*window);
+  options.custom_surface_loaders.emplace_back(std::make_unique<VulkanUtilities::VkStartupTest::GLFWSurfaceLoader>(*window,
+                                                                                                         "main_window"));
+  options.custom_surface_loaders.emplace_back(
+      std::make_unique<VulkanUtilities::VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
+
   options.required_instance_extensions = VulkanUtilities::VkStartupTest::GLFWSurfaceLoader::extensions();
 
   // Create context

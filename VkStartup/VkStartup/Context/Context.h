@@ -25,7 +25,8 @@ struct VkContext {
 
   std::unordered_map<VkShared::Enums::QueueFamily, QueueIndexHandle> vk_queues{};
 
-  std::unique_ptr<SurfaceLoader> surface_loader{};
+  // Multiple surfaces to be drawn to
+  std::unordered_map<std::string, std::unique_ptr<SurfaceLoader>> surface_loaders;
 };
 
 }  // namespace VulkanUtilities::VkStartup

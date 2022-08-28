@@ -2,7 +2,7 @@
 #include "VkStartup/Context/SurfaceLoader.h"
 
 // required before GLFW if not using 'GLFW_INCLUDE_VULKAN'
-#include <vulkan/vulkan.h> 
+#include <vulkan/vulkan.h>
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -12,7 +12,8 @@ namespace VulkanUtilities::VkStartupTest {
 // GLFW Surface Loader Example
 class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
  public:
-  explicit GLFWSurfaceLoader(GLFWwindow& window) : m_window{window} {
+  explicit GLFWSurfaceLoader(GLFWwindow& window, std::string surface_id)
+      : SurfaceLoader{std::move(surface_id)}, m_window{window} {
   }
 
   [[nodiscard]] VkResult init_surface() override {
