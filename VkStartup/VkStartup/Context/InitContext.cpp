@@ -6,6 +6,7 @@
 #include <memory>
 #include <unordered_set>
 #include <cstring>
+#include <algorithm>
 
 namespace VulkanUtilities::VkStartup {
 void InitContext::init() {
@@ -129,6 +130,17 @@ void InitContext::init_instance() {
 }
 
 void InitContext::init_physical_device() {
+  // Swapchain support is only required if a surface loader exists:
+  if (!m_options.custom_surface_loaders.empty()) {
+    // Check required and optional.  Technically its required
+    // here, however its possible the user forgot:
+    const std::string swapchain_physical_device_extension{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    if (std::ranges::find(m_options.desired_device_extensions, swapchain_physical_device_extension) == m_options.desired_device_extensions.end() &&
+        std::ranges::find(m_options.required_device_extensions, swapchain_physical_device_extension) == m_options.required_device_extensions.end()) {
+      m_options.required_device_extensions.emplace_back(swapchain_physical_device_extension.c_str());
+    }
+  }
+
   if (m_options.custom_physical_device_criteria) {
     // User defined physical device selection
     m_context.physical_device_info = m_options.custom_physical_device_criteria->physical_device_info();

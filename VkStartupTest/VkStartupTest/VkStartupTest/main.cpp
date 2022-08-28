@@ -4,6 +4,7 @@
 int main() {
   VulkanUtilities::VkStartup::InitContextOptions options;
   options.enable_validation = true;
+  options.desired_device_extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
   // Any windowing system is fine.  This example shows GLFW:
   glfwInit();
