@@ -135,8 +135,10 @@ void InitContext::init_physical_device() {
     // Check required and optional.  Technically its required
     // here, however its possible the user forgot:
     const std::string swapchain_physical_device_extension{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    if (std::ranges::find(m_options.desired_device_extensions, swapchain_physical_device_extension) == m_options.desired_device_extensions.end() &&
-        std::ranges::find(m_options.required_device_extensions, swapchain_physical_device_extension) == m_options.required_device_extensions.end()) {
+    if (std::ranges::find(m_options.desired_device_extensions, swapchain_physical_device_extension) ==
+            m_options.desired_device_extensions.end() &&
+        std::ranges::find(m_options.required_device_extensions, swapchain_physical_device_extension) ==
+            m_options.required_device_extensions.end()) {
       m_options.required_device_extensions.emplace_back(swapchain_physical_device_extension.c_str());
     }
   }
