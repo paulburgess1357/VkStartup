@@ -3,15 +3,13 @@
 #include "VkStartup/Handle/UsingHandle.h"
 #include "VkStartup/Context/PhysicalDevice.h"
 #include "VkStartup/Context/SurfaceLoader.h"
+#include "VkStartup/Context/Queues.h"
 #include "VkShared/Enums.h"
 #include <memory>
 
 namespace VulkanUtilities::VkStartup {
 
-struct QueueIndexHandle {
-  uint32_t family_index{999};
-  VkQueue handle{VK_NULL_HANDLE};
-};
+
 
 struct VkContext {
   std::unique_ptr<VkInstanceHandle> instance{};
@@ -23,10 +21,12 @@ struct VkContext {
   std::unique_ptr<VkDeviceHandle> device{};
   VkDevice vk_device{VK_NULL_HANDLE};
 
-  std::unordered_map<VkShared::Enums::QueueFamily, QueueIndexHandle> vk_queues{};
+  std::unordered_map<VkShared::Enums::QueueFamily, Queues::QueueIndexHandle> vk_queues{};
 
   // Multiple surfaces to be drawn to
   std::unordered_map<std::string, std::unique_ptr<SurfaceLoader>> surface_loaders;
+  std::unordered_map<std::string, VkSwapchainKHR> swapchains;
+
 };
 
 }  // namespace VulkanUtilities::VkStartup

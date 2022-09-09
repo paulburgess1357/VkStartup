@@ -1,5 +1,6 @@
 #pragma once
 #include "VkStartup/Misc/Exceptions.h"
+#include "VkStartup/Context/Swapchain.h"
 #include "VkShared/Macros.h"
 #include <vulkan/vulkan.h>
 #include <algorithm>
@@ -46,7 +47,12 @@ class SurfaceLoader {
     VkCheck(init_surface(), Exceptions::VkStartupException());
   }
 
+  // User defined swapchain format given supported details
+  [[nodiscard]] virtual Swapchain::SwapchainFormatDetails select_swapchain_format(
+      const Swapchain::SwapchainFormatSupport supported_details) const = 0;
+
  protected:
+  // User defined surface initialization (glfw, sdl, etc.)
   [[nodiscard]] virtual VkResult init_surface() = 0;
   VkInstance m_vk_instance{VK_NULL_HANDLE};
   VkSurfaceKHR khr_surface{VK_NULL_HANDLE};

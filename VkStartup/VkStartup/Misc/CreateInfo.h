@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
+#include <vector>
 
 namespace VulkanUtilities::VkStartup::CreateInfo {
 [[nodiscard]] inline VkApplicationInfo vk_application_info() {
@@ -37,6 +38,26 @@ namespace VulkanUtilities::VkStartup::CreateInfo {
   VkDeviceCreateInfo info = {};
   info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   info.pNext = nullptr;
+  return info;
+}
+
+[[nodiscard]] inline VkSwapchainCreateInfoKHR vk_swapchain_create_info(
+    const std::vector<uint32_t>& unique_queue_family_indices) {
+  VkSwapchainCreateInfoKHR info = {};
+  info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+
+  if (unique_queue_family_indices.size() > 1) {
+    // Concurrent sharing
+    info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+    info.queueFamilyIndexCount = static_cast<uint32_t>(unique_queue_family_indices.size());
+    info.pQueueFamilyIndices = unique_queue_family_indices.data();
+  } else {
+    // Exclusive sharing
+    info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    info.queueFamilyIndexCount = 0;
+    info.pQueueFamilyIndices = nullptr;
+  }
+
   return info;
 }
 

@@ -2,7 +2,7 @@
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
-namespace VulkanUtilities::VkStartup {
+namespace VulkanUtilities::VkStartup::Swapchain {
 
 struct SwapchainFormatSupport {
   VkSurfaceCapabilitiesKHR capabilities = {};
@@ -14,29 +14,32 @@ struct SwapchainFormatDetails {
   VkSurfaceFormatKHR format = {};
   VkPresentModeKHR present_mode = {};
   VkExtent2D extent = {};
+  uint32_t image_count{};
+  VkSurfaceTransformFlagBitsKHR pretransform = {};
 };
 
-class SwapchainFormatSelect {
- public:
-  virtual ~SwapchainFormatSelect() = default;
+[[nodiscard]] inline SwapchainFormatSupport query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface) {
+  SwapchainFormatSupport swapchain_support;
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &swapchain_support.capabilities);
 
-  SwapchainFormatSelect(const SwapchainFormatSelect& source) = default;
-  SwapchainFormatSelect& operator=(const SwapchainFormatSelect& rhs) = default;
-  SwapchainFormatSelect(SwapchainFormatSelect&& source) noexcept = default;
-  SwapchainFormatSelect& operator=(SwapchainFormatSelect&& rhs) noexcept = default;
+  uint32_t format_count;
+  vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, nullptr);
 
-  [[nodiscard]] virtual SwapchainFormatDetails select_swapchain_format(
-      const SwapchainFormatSupport supported_formats) const = 0;
+  if (format_count != 0) {
+    swapchain_support.formats.resize(format_count);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, swapchain_support.formats.data());
+  }
 
- private:
-  [[nodiscard]] static SwapchainFormatSupport query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface);
-};
+  uint32_t present_mode_count;
+  vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &present_mode_count, nullptr);
 
-// User defined swapchain format details
-class DefaultSwapchainFormatSelect final : public SwapchainFormatSelect {
-public:
-  DefaultSwapchainFormatSelect() = default;
-  [[nodiscard]] SwapchainFormatDetails select_swapchain_format(const SwapchainFormatSupport supported_details) const override;
-};
+  if (present_mode_count != 0) {
+    swapchain_support.present_modes.resize(present_mode_count);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &present_mode_count,
+                                              swapchain_support.present_modes.data());
+  }
 
-}  // namespace VulkanUtilities::VkStartup
+  return swapchain_support;
+}
+
+}  // namespace VulkanUtilities::VkStartup::SwapchainUtility

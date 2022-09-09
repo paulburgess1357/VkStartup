@@ -2,6 +2,7 @@
 #include "VkStartup/Handle/UsingHandle.h"
 #include "VkStartup/Misc/Exceptions.h"
 #include "VkStartup/Misc/CreateInfo.h"
+#include "VkStartup/Context/Queues.h"
 #include "VkShared/Macros.h"
 #include <memory>
 #include <unordered_set>
@@ -16,6 +17,7 @@ void InitContext::init() {
   init_logical_device();
   init_queue_handles();
   init_surfaces();
+  init_swapchain();
 }
 
 void InitContext::init_instance() {
@@ -203,7 +205,7 @@ void InitContext::init_queue_handles() {
         VkError("Unable to create queue handle");
         throw Exceptions::VkStartupException();
       }
-      m_context.vk_queues[family] = QueueIndexHandle{family_index, queue};
+      m_context.vk_queues[family] = Queues::QueueIndexHandle{family_index, queue};
     }
   }
 }
@@ -216,6 +218,51 @@ void InitContext::init_surfaces() {
     }
   } else {
     VkWarning("No Surface loader supplied.  Vulkan will be initialized without a surface for drawing");
+  }
+}
+
+void InitContext::init_swapchain() {
+  // Initialize swapchain handles to null if not already created (e.g. window resize would use already created
+  // swapchains)
+  if (m_context.swapchains.empty()) {
+    if (!m_options.custom_surface_loaders.empty()) {
+      for (const auto& [id, surface_loader] : m_context.surface_loaders) {
+        m_context.swapchains[id] = VK_NULL_HANDLE;
+      }
+    }
+  }
+
+  // Initialize swapchain
+  if (!m_options.custom_surface_loaders.empty()) {
+    for (const auto& [id, surface_loader] : m_context.surface_loaders) {
+      // Supported swapchain details.  This is dependent on the physical device.  The user
+      // takes these details and uses them to determine what format they want for their
+      // swapchain
+      const auto supported_swapchain_details = Swapchain::query_swapchain_support(
+          m_context.physical_device_info.vk_physical_device, surface_loader->surface());
+
+      // Swapchain creation details (likely the same for all windows but not required)
+      const auto selected_swapchain_details = surface_loader->select_swapchain_format(supported_swapchain_details);
+
+      // Initialize the swapchain using 'selected_swapchain_details'
+      const auto unique_queues_vec = Queues::unique_queues(m_context.vk_queues);  // Sharing mode
+      auto info = CreateInfo::vk_swapchain_create_info(unique_queues_vec);
+      info.surface = surface_loader->surface();
+      info.minImageCount = selected_swapchain_details.image_count;
+      info.imageFormat = selected_swapchain_details.format.format;
+      info.imageColorSpace = selected_swapchain_details.format.colorSpace;
+      info.imageExtent = selected_swapchain_details.extent;
+      info.preTransform = selected_swapchain_details.pretransform;
+      info.presentMode = selected_swapchain_details.present_mode;
+      info.clipped = VK_TRUE;
+      info.imageArrayLayers = 1;
+      info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+      info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+      info.oldSwapchain = m_context.swapchains.at(id);
+
+      // TODO create swapchain using handle raii class
+
+    }
   }
 }
 
