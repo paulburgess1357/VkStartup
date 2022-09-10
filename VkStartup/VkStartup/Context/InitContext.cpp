@@ -89,7 +89,7 @@ void InitContext::init_instance() {
       extensions.push_back(debug_ext_name);
     } else {
       m_options.enable_validation = false;
-      VkWarning("Validation or debug dextension not supported");
+      VkWarning("Validation or debug extension not supported");
     }
   }
 

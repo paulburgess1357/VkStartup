@@ -13,6 +13,11 @@ file(GLOB_RECURSE HeaderFiles CONFIGURE_DEPENDS "${TargetName}/*.h")
 add_library(${TargetName} STATIC ${SourceFiles} ${HeaderFiles})
 set_target_properties(${TargetName} PROPERTIES DEBUG_POSTFIX d)
 
+target_compile_options(${TargetName} PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wno-unknown-pragmas -Wextra -Wpedantic>
+)
+
 set(DEP_VkShared VkShared)
 message("\nCloning VkShared... (GitHub SSH key setup required)")
 FetchContent_Declare(
