@@ -9,7 +9,12 @@
 
 namespace VulkanUtilities::VkStartup {
 
-
+struct VkSwapchainContext {
+  std::unique_ptr<SurfaceLoader> surface_loader{};
+  std::unique_ptr<VkSwapchainHandle> swapchain{};
+  VkSwapchainKHR vk_swapchain{VK_NULL_HANDLE};
+  std::vector<VkImage> vk_swapchain_images{};
+};
 
 struct VkContext {
   std::unique_ptr<VkInstanceHandle> instance{};
@@ -24,9 +29,12 @@ struct VkContext {
   std::unordered_map<VkShared::Enums::QueueFamily, Queues::QueueIndexHandle> vk_queues{};
 
   // Multiple surfaces to be drawn to
-  std::unordered_map<std::string, std::unique_ptr<SurfaceLoader>> surface_loaders;
-  std::unordered_map<std::string, VkSwapchainKHR> swapchains;
+  std::unordered_map<std::string, VkSwapchainContext> swapchain_data{};
 
+  // std::unordered_map<std::string, std::unique_ptr<SurfaceLoader>> surface_loaders{};
+  // std::unordered_map<std::string, std::unique_ptr<VkSwapchainHandle>> swapchains{};
+  // std::unordered_map<std::string, VkSwapchainKHR> vk_swapchains{};
+  // std::unordered_map<std::string, std::vector<VkImage>> vk_swapchain_images{};
 };
 
 }  // namespace VulkanUtilities::VkStartup

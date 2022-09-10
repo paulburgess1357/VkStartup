@@ -16,6 +16,7 @@ struct SwapchainFormatDetails {
   VkExtent2D extent = {};
   uint32_t image_count{};
   VkSurfaceTransformFlagBitsKHR pretransform = {};
+  VkImageUsageFlags usage_flags {0};
 };
 
 [[nodiscard]] inline SwapchainFormatSupport query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface) {

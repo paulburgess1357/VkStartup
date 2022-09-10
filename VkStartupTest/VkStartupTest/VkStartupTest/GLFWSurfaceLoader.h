@@ -59,8 +59,8 @@ class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
     if (supported_details.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
       details.extent = supported_details.capabilities.currentExtent;
     } else {
-      int width;
-      int height;
+      int width{};
+      int height{};
       glfwGetFramebufferSize(&m_window, &width, &height);
       details.extent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 
@@ -80,6 +80,9 @@ class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
 
     // Pre-Transform
     details.pretransform = supported_details.capabilities.currentTransform;
+
+    // Usage
+    details.usage_flags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     return details;
   }

@@ -214,7 +214,7 @@ void InitContext::init_surfaces() {
   if (!m_options.custom_surface_loaders.empty()) {
     for (auto& surface_loader : m_options.custom_surface_loaders) {
       surface_loader->init(m_context.vk_instance);
-      m_context.surface_loaders[surface_loader->id()] = std::move(surface_loader);
+      m_context.swapchain_data[surface_loader->id()].surface_loader = std::move(surface_loader);
     }
   } else {
     VkWarning("No Surface loader supplied.  Vulkan will be initialized without a surface for drawing");
@@ -222,32 +222,23 @@ void InitContext::init_surfaces() {
 }
 
 void InitContext::init_swapchain() {
-  // Initialize swapchain handles to null if not already created (e.g. window resize would use already created
-  // swapchains)
-  if (m_context.swapchains.empty()) {
-    if (!m_options.custom_surface_loaders.empty()) {
-      for (const auto& [id, surface_loader] : m_context.surface_loaders) {
-        m_context.swapchains[id] = VK_NULL_HANDLE;
-      }
-    }
-  }
-
   // Initialize swapchain
-  if (!m_options.custom_surface_loaders.empty()) {
-    for (const auto& [id, surface_loader] : m_context.surface_loaders) {
+  if (!m_context.swapchain_data.empty()) {
+    for (auto& swapchain_data : m_context.swapchain_data) {
       // Supported swapchain details.  This is dependent on the physical device.  The user
       // takes these details and uses them to determine what format they want for their
       // swapchain
       const auto supported_swapchain_details = Swapchain::query_swapchain_support(
-          m_context.physical_device_info.vk_physical_device, surface_loader->surface());
+          m_context.physical_device_info.vk_physical_device, swapchain_data.second.surface_loader->surface());
 
       // Swapchain creation details (likely the same for all windows but not required)
-      const auto selected_swapchain_details = surface_loader->select_swapchain_format(supported_swapchain_details);
+      const auto selected_swapchain_details = swapchain_data.second.surface_loader->select_swapchain_format(
+          supported_swapchain_details);
 
       // Initialize the swapchain using 'selected_swapchain_details'
       const auto unique_queues_vec = Queues::unique_queues(m_context.vk_queues);  // Sharing mode
       auto info = CreateInfo::vk_swapchain_create_info(unique_queues_vec);
-      info.surface = surface_loader->surface();
+      info.surface = swapchain_data.second.surface_loader->surface();
       info.minImageCount = selected_swapchain_details.image_count;
       info.imageFormat = selected_swapchain_details.format.format;
       info.imageColorSpace = selected_swapchain_details.format.colorSpace;
@@ -256,12 +247,24 @@ void InitContext::init_swapchain() {
       info.presentMode = selected_swapchain_details.present_mode;
       info.clipped = VK_TRUE;
       info.imageArrayLayers = 1;
-      info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+      info.imageUsage = selected_swapchain_details.usage_flags;
       info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-      info.oldSwapchain = m_context.swapchains.at(id);
+      info.oldSwapchain = swapchain_data.second.vk_swapchain;
 
-      // TODO create swapchain using handle raii class
+      swapchain_data.second.swapchain = std::make_unique<VkSwapchainHandle>(info, m_context.vk_device);
+      swapchain_data.second.vk_swapchain = swapchain_data.second.swapchain->handle();
 
+      // Set swapchain images
+      // Count is required because 'min image count' above is a request that isn't guarenteed
+      uint32_t swap_image_count{};
+      vkGetSwapchainImagesKHR(m_context.vk_device, swapchain_data.second.vk_swapchain, &swap_image_count, nullptr);
+      std::vector<VkImage> swapchain_images(swap_image_count);
+      vkGetSwapchainImagesKHR(m_context.vk_device, swapchain_data.second.vk_swapchain, &swap_image_count,
+                              swapchain_images.data());
+      swapchain_data.second.vk_swapchain_images = swapchain_images;
+
+      // Set swapchain image views
+      // TODO
     }
   }
 }
