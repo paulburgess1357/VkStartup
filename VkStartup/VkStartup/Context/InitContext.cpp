@@ -214,7 +214,7 @@ void InitContext::init_surfaces() {
   if (!m_options.custom_surface_loaders.empty()) {
     for (auto& surface_loader : m_options.custom_surface_loaders) {
       surface_loader->init(m_context.vk_instance);
-      m_context.swapchain_data[surface_loader->id()].surface_loader = std::move(surface_loader);
+      m_context.swapchain_context[surface_loader->id()].surface_loader = std::move(surface_loader);
     }
   } else {
     VkWarning("No Surface loader supplied.  Vulkan will be initialized without a surface for drawing");
@@ -223,8 +223,8 @@ void InitContext::init_surfaces() {
 
 void InitContext::init_swapchain() {
   // Initialize swapchain
-  if (!m_context.swapchain_data.empty()) {
-    for (auto& swapchain_data : m_context.swapchain_data) {
+  if (!m_context.swapchain_context.empty()) {
+    for (auto& swapchain_data : m_context.swapchain_context) {
       // Supported swapchain details.  This is dependent on the physical device.  The user
       // takes these details and uses them to determine what format they want for their swapchain
       const auto supported_swapchain_details = Swapchain::query_swapchain_support(
@@ -257,13 +257,13 @@ void InitContext::init_swapchain() {
       // Count is required because 'min image count' above is a request that isn't guarenteed
       uint32_t swap_image_count{};
       vkGetSwapchainImagesKHR(m_context.vk_device, swapchain_data.second.vk_swapchain, &swap_image_count, nullptr);
-      swapchain_data.second.vk_swapchain_images.resize(swap_image_count);
+      swapchain_data.second.vk_images.resize(swap_image_count);
       vkGetSwapchainImagesKHR(m_context.vk_device, swapchain_data.second.vk_swapchain, &swap_image_count,
-                              swapchain_data.second.vk_swapchain_images.data());
+                              swapchain_data.second.vk_images.data());
 
       // Set swapchain image views
       for (size_t i = 0; i < swap_image_count; i++) {
-        auto image_view_info = CreateInfo::vk_image_view_create_info(swapchain_data.second.vk_swapchain_images[i]);
+        auto image_view_info = CreateInfo::vk_image_view_create_info(swapchain_data.second.vk_images[i]);
         image_view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
         image_view_info.format = selected_swapchain_details.format.format;
         image_view_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -276,9 +276,9 @@ void InitContext::init_swapchain() {
         image_view_info.subresourceRange.baseArrayLayer = 0;
         image_view_info.subresourceRange.layerCount = 1;
 
-        swapchain_data.second.swapchain_image_views.emplace_back(image_view_info, m_context.vk_device);
-        swapchain_data.second.vk_swapchain_image_views.emplace_back(
-            swapchain_data.second.swapchain_image_views.at(i).handle());
+        swapchain_data.second.image_views.emplace_back(image_view_info, m_context.vk_device);
+        swapchain_data.second.vk_image_views.emplace_back(
+            swapchain_data.second.image_views.at(i).handle());
       }
     }
   }

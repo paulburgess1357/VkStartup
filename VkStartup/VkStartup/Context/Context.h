@@ -15,10 +15,10 @@ struct VkSwapchainContext {
   std::unique_ptr<VkSwapchainHandle> swapchain{};
   VkSwapchainKHR vk_swapchain{VK_NULL_HANDLE};
 
-  std::vector<VkImage> vk_swapchain_images{};
+  std::vector<VkImage> vk_images{};
 
-  std::vector<VkImageViewHandle> swapchain_image_views{};
-  std::vector<VkImageView> vk_swapchain_image_views{};
+  std::vector<VkImageViewHandle> image_views{};
+  std::vector<VkImageView> vk_image_views{};
 };
 
 struct VkContext {
@@ -34,12 +34,8 @@ struct VkContext {
   std::unordered_map<VkShared::Enums::QueueFamily, Queues::QueueIndexHandle> vk_queues{};
 
   // Multiple surfaces to be drawn to
-  std::unordered_map<std::string, VkSwapchainContext> swapchain_data{};
+  std::unordered_map<std::string, VkSwapchainContext> swapchain_context{};
 
-  // std::unordered_map<std::string, std::unique_ptr<SurfaceLoader>> surface_loaders{};
-  // std::unordered_map<std::string, std::unique_ptr<VkSwapchainHandle>> swapchains{};
-  // std::unordered_map<std::string, VkSwapchainKHR> vk_swapchains{};
-  // std::unordered_map<std::string, std::vector<VkImage>> vk_swapchain_images{};
 };
 
 }  // namespace VulkanUtilities::VkStartup
