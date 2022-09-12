@@ -11,9 +11,14 @@ namespace VulkanUtilities::VkStartup {
 
 struct VkSwapchainContext {
   std::unique_ptr<SurfaceLoader> surface_loader{};
+
   std::unique_ptr<VkSwapchainHandle> swapchain{};
   VkSwapchainKHR vk_swapchain{VK_NULL_HANDLE};
+
   std::vector<VkImage> vk_swapchain_images{};
+
+  std::vector<VkImageViewHandle> swapchain_image_views{};
+  std::vector<VkImageView> vk_swapchain_image_views{};
 };
 
 struct VkContext {

@@ -61,4 +61,11 @@ namespace VulkanUtilities::VkStartup::CreateInfo {
   return info;
 }
 
+[[nodiscard]] inline VkImageViewCreateInfo vk_image_view_create_info(VkImage vk_image) {
+  VkImageViewCreateInfo info = {};
+  info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  info.image = vk_image;
+  return info;
+}
+
 }  // namespace VulkanUtilities::VkStartup::CreateInfo
