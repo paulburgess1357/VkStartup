@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include "VkStartup/Misc/Exceptions.h"
 #include "VkShared/Macros.h"
+#include <vk_mem_alloc.h>
 // ReSharper disable CppClangTidyClangDiagnosticShadow
 
 namespace VulkanUtilities::VkStartup {
@@ -62,6 +63,18 @@ class CreateDestroyImageView {
 
  private:
   VkDevice m_vk_device{VK_NULL_HANDLE};
+};
+
+struct CreateDestroyVMA {
+  void create(const VmaAllocatorCreateInfo& info) {
+    VkCheck(vmaCreateAllocator(&info, &handle), Exceptions::VkStartupException());
+  }
+  void destroy() const {
+    if (handle) {
+      vmaDestroyAllocator(handle);
+    }
+  }
+  VmaAllocator handle{VK_NULL_HANDLE};
 };
 
 }  // namespace VulkanUtilities::VkStartup

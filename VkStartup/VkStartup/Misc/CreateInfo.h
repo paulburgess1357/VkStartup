@@ -1,4 +1,5 @@
 #pragma once
+#include <vk_mem_alloc.h>
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
@@ -65,6 +66,17 @@ namespace VulkanUtilities::VkStartup::CreateInfo {
   VkImageViewCreateInfo info = {};
   info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   info.image = vk_image;
+  return info;
+}
+
+[[nodiscard]] inline VmaAllocatorCreateInfo vma_allocator_info(VkInstance vk_instance, VkDevice vk_device,
+                                                      VkPhysicalDevice vk_physical_device,
+                                                      const uint32_t vk_api_version) {
+  VmaAllocatorCreateInfo info = {};
+  info.instance = vk_instance;
+  info.device = vk_device;
+  info.physicalDevice = vk_physical_device;
+  info.vulkanApiVersion = vk_api_version;
   return info;
 }
 

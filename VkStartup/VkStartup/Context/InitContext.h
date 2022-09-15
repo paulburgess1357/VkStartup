@@ -46,6 +46,7 @@ class InitContext {
   void init_queue_handles();
   void init_surfaces();
   void init_swapchain();
+  void init_vma();
 
   [[nodiscard]] static bool extension_supported(const std::vector<VkExtensionProperties>& supported,
                                                 const char* value_to_check);

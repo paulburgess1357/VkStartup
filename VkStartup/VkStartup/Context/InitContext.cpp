@@ -18,6 +18,7 @@ void InitContext::init() {
   init_queue_handles();
   init_surfaces();
   init_swapchain();
+  init_vma();
 }
 
 void InitContext::init_instance() {
@@ -251,7 +252,7 @@ void InitContext::init_swapchain() {
       info.oldSwapchain = swapchain_data.second.vk_swapchain;
 
       swapchain_data.second.swapchain = std::make_unique<VkSwapchainHandle>(info, m_context.vk_device);
-       swapchain_data.second.vk_swapchain = swapchain_data.second.swapchain->handle();
+      swapchain_data.second.vk_swapchain = swapchain_data.second.swapchain->handle();
 
       // Set swapchain images
       // Count is required because 'min image count' above is a request that isn't guarenteed
@@ -277,11 +278,17 @@ void InitContext::init_swapchain() {
         image_view_info.subresourceRange.layerCount = 1;
 
         swapchain_data.second.image_views.emplace_back(image_view_info, m_context.vk_device);
-        swapchain_data.second.vk_image_views.emplace_back(
-            swapchain_data.second.image_views.at(i).handle());
+        swapchain_data.second.vk_image_views.emplace_back(swapchain_data.second.image_views.at(i).handle());
       }
     }
   }
+}
+
+void InitContext::init_vma() {
+  auto info = CreateInfo::vma_allocator_info(m_context.vk_instance, m_context.vk_device,
+                                             m_context.physical_device_info.vk_physical_device, m_options.api_version);
+  m_context.mem_alloc = std::make_unique<VmaAllocatorHandle>(info);
+  m_context.vk_mem_alloc = m_context.mem_alloc->handle();
 }
 
 bool InitContext::extension_supported(const std::vector<VkExtensionProperties>& supported, const char* value_to_check) {

@@ -36,6 +36,9 @@ struct VkContext {
   // Multiple surfaces to be drawn to
   std::unordered_map<std::string, VkSwapchainContext> swapchain_context{};
 
+  std::unique_ptr<VmaAllocatorHandle> mem_alloc{};
+  VmaAllocator vk_mem_alloc{VK_NULL_HANDLE};
+
 };
 
 }  // namespace VulkanUtilities::VkStartup
