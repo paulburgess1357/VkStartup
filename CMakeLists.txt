@@ -45,11 +45,17 @@ if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 	)
 
 	list(APPEND IncludeDirectories ${CONAN_INCLUDE_DIRS_FILTERED})
-	list(APPEND LinkDirectories CONAN_PKG::vulkan-loader)
+	list(APPEND LinkDirectories 
+		CONAN_PKG::vulkan-loader 
+		CONAN_PKG::vulkan-memory-allocator)
 else()
 	find_package(Vulkan REQUIRED)
 	list(APPEND IncludeDirectories ${Vulkan_INCLUDE_DIR})
 	list(APPEND LinkDirectories ${Vulkan_LIBRARIES})
+
+	find_package(VulkanMemoryAllocator REQUIRED)
+	target_link_libraries(${TargetName} PRIVATE VulkanMemoryAllocator)
+
 endif()
 
 target_include_directories(${TargetName} PRIVATE 

@@ -31,7 +31,10 @@ if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 	endif()
 
 	list(APPEND IncludeDirectories ${CONAN_INCLUDE_DIRS})
-	list(APPEND LinkDirectories CONAN_PKG::vulkan-loader CONAN_PKG::glfw)
+	list(APPEND LinkDirectories 
+		CONAN_PKG::vulkan-loader 
+		CONAN_PKG::glfw
+		CONAN_PKG::vulkan-memory-allocator)
 else()
 	find_package(Vulkan REQUIRED)
 	list(APPEND IncludeDirectories ${Vulkan_INCLUDE_DIR})
@@ -39,6 +42,9 @@ else()
 
 	find_package(glfw3 3.3 REQUIRED)
 	target_link_libraries(${TargetName} PRIVATE glfw)
+
+	find_package(VulkanMemoryAllocator REQUIRED)
+	target_link_libraries(${TargetName} PRIVATE VulkanMemoryAllocator)
 
 endif()
 

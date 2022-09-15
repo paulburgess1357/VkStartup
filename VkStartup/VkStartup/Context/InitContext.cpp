@@ -251,7 +251,7 @@ void InitContext::init_swapchain() {
       info.oldSwapchain = swapchain_data.second.vk_swapchain;
 
       swapchain_data.second.swapchain = std::make_unique<VkSwapchainHandle>(info, m_context.vk_device);
-      swapchain_data.second.vk_swapchain = swapchain_data.second.swapchain->handle();
+       swapchain_data.second.vk_swapchain = swapchain_data.second.swapchain->handle();
 
       // Set swapchain images
       // Count is required because 'min image count' above is a request that isn't guarenteed
