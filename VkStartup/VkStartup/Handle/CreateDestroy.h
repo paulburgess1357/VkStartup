@@ -1,8 +1,8 @@
 #pragma once
+#include "VkStartup/Context/MemAlloc.h"
 #include <vulkan/vulkan.h>
 #include "VkStartup/Misc/Exceptions.h"
 #include "VkShared/Macros.h"
-#include <vk_mem_alloc.h>
 // ReSharper disable CppClangTidyClangDiagnosticShadow
 
 namespace VulkanUtilities::VkStartup {
