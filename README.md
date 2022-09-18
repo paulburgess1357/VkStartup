@@ -18,7 +18,6 @@
 -->
 
 <!-- PROJECT LOGO -->
-<br />
 <div align="center">
 <!--
   <a href="https://github.com/othneildrew/Best-README-Template">
@@ -29,7 +28,6 @@
 
   <p align="center">
     Vulkan startup library to jumpstart your projects!
-    <br />
     <br />
     <br />
   </p>
@@ -49,7 +47,8 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#custom-physical-device-and-surface-loader-usage">Custom Physical Device & Surface Loader Usage</a></li>
+    <li><a href="#initcontext-usage">InitContext Usage</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -125,7 +124,7 @@ You must have the dependencies listed above already installed
 
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## Custom Physical Device and Surface Loader Usage
 ### Custom Physical Device Selection Class
 The user can rely on the default physical device selection or create their own physical device selection class.  This class also determines enabled features used for the logical device creation.  See the `PhysicalDeviceDefault` for examples on creating your own physical device selection & feature enabling class:
   * [PhysicalDeviceDefault.h](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartup/VkStartup/Context/PhysicalDevice.h)
@@ -156,6 +155,7 @@ Surface creation is optional.  Surfaces can be created from any windowing system
 Example Loader:
   * [GLFW Example Surface Loader](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartupTest/VkStartupTest/VkStartupTest/GLFWSurfaceLoader.h)
 
+## InitContext Usage
 
 ### InitContextOptions
 Creating a context uses the `InitContextOptions` [struct](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartup/VkStartup/Context/InitContext.h).  This struct provides the following:
@@ -165,7 +165,6 @@ Creating a context uses the `InitContextOptions` [struct](https://github.com/pau
  * User defined physical device selection criteria.  If no criteria is provided, the default physical device selection criteria will be used.
  * Custom surface loaders.  This is optional.  A user may create a zero, a single, or multiple surfaces.  Swapchain images will be created.  If no surface loader is provided, no swapchain images will be created.
 
-## InitContext Usage
 ```
 VulkanUtilities::VkStartup::InitContextOptions options;
 
