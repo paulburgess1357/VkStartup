@@ -85,7 +85,7 @@ This project relies on CMake and optionally Conan for dependency installation.  
 ### Installation
 Below are build steps for using Conan.  If you are not using Conan, you will need to have the dependencies already installed.
 
-#### Conan Build
+#### Conan and CMake Build
 1. Clone the repo
    ```sh
    git clone git@github.com:paulburgess1357/VkStartup.git
@@ -105,7 +105,7 @@ Below are build steps for using Conan.  If you are not using Conan, you will nee
    ```sh
    cmake --build . --config Debug --target VkStartupTest
    ```
-#### No Conan Build
+#### Cmake Only Build
 You must have the dependencies listed above already installed
 1. Clone the repo
    ```sh
