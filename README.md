@@ -123,38 +123,6 @@ You must have the dependencies listed above already installed
    ```
 
 
-<!-- USAGE EXAMPLES -->
-## Custom Physical Device and Surface Loader Usage
-### Custom Physical Device Selection Class
-The user can rely on the default physical device selection or create their own physical device selection class.  This class also determines enabled features used for the logical device creation.  See the `PhysicalDeviceDefault` for examples on creating your own physical device selection & feature enabling class:
-  * [PhysicalDeviceDefault.h](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartup/VkStartup/Context/PhysicalDevice.h)
-  * [PhysicalDeviceDefault.cpp](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartup/VkStartup/Context/PhysicalDevice.cpp)
-  
-```
-class PhysicalDeviceDefault final : public PhysicalDevice {
- public:
-  explicit PhysicalDeviceDefault(VkInstance instance, std::vector<const char*> desired_device_extension,
-                                 std::vector<const char*> required_device_extensions)
-      : PhysicalDevice{instance, std::move(desired_device_extension), std::move(required_device_extensions)} {
-  }
-
- private:
-  void select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) override;
-  void set_features_to_activate() override;
-  [[nodiscard]] static bool device_meets_requirements(VkPhysicalDevice device,
-                                                      const VkPhysicalDeviceFeatures& device_features);
-};
-```
-
-### Custom Surface Loading Class
-Surface creation is optional.  Surfaces can be created from any windowing system and are user defined.  The examples here use GLFW, but SDL or other windowing systems can be used.  Multiple surface loaders can be used and must be given a unique ID.  All handles related to the surface, swapchain, images, etc. will be accessed using the unique ID.  If a surface loader is used, the following handles will be created independently for each surface: 
-  * VkSwapchainKHR
-  * std::vector\<VkImage>
-  * std::vector\<VkImageView>
-
-Example Loader:
-  * [GLFW Example Surface Loader](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartupTest/VkStartupTest/VkStartupTest/GLFWSurfaceLoader.h)
-
 ## InitContext Usage
 
 ### InitContextOptions
@@ -164,6 +132,11 @@ Creating a context uses the `InitContextOptions` [struct](https://github.com/pau
  * boolean option for enabling validation layers
  * User defined physical device selection criteria.  If no criteria is provided, the default physical device selection criteria will be used.
  * Custom surface loaders.  This is optional.  A user may create a zero, a single, or multiple surfaces.  Swapchain images will be created.  If no surface loader is provided, no swapchain images will be created.
+
+
+For a full example, build and run the test project `VkStartupTest`:
+
+[VkStartupTest Example](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartupTest/VkStartupTest/VkStartupTest/main.cpp)
 
 ```
 #include "VkStartup/Context/InitContext.h"
@@ -198,9 +171,38 @@ int main() {
 }
 
 ```
-For a full example, build and run the test project `VkStartupTest`:
 
-[VkStartupTest Example](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartupTest/VkStartupTest/VkStartupTest/main.cpp)
+<!-- USAGE EXAMPLES -->
+### Custom Physical Device Selection Class
+The user can rely on the default physical device selection or create their own physical device selection class.  This class also determines enabled features used for the logical device creation.  See the `PhysicalDeviceDefault` for examples on creating your own physical device selection & feature enabling class:
+  * [PhysicalDeviceDefault.h](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartup/VkStartup/Context/PhysicalDevice.h)
+  * [PhysicalDeviceDefault.cpp](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartup/VkStartup/Context/PhysicalDevice.cpp)
+  
+```
+class PhysicalDeviceDefault final : public PhysicalDevice {
+ public:
+  explicit PhysicalDeviceDefault(VkInstance instance, std::vector<const char*> desired_device_extension,
+                                 std::vector<const char*> required_device_extensions)
+      : PhysicalDevice{instance, std::move(desired_device_extension), std::move(required_device_extensions)} {
+  }
+
+ private:
+  void select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) override;
+  void set_features_to_activate() override;
+  [[nodiscard]] static bool device_meets_requirements(VkPhysicalDevice device,
+                                                      const VkPhysicalDeviceFeatures& device_features);
+};
+```
+
+### Custom Surface Loading Class
+Surface creation is optional.  Surfaces can be created from any windowing system and are user defined.  The examples here use GLFW, but SDL or other windowing systems can be used.  Multiple surface loaders can be used and must be given a unique ID.  All handles related to the surface, swapchain, images, etc. will be accessed using the unique ID.  If a surface loader is used, the following handles will be created independently for each surface: 
+  * VkSwapchainKHR
+  * std::vector\<VkImage>
+  * std::vector\<VkImageView>
+
+Example Loader:
+  * [GLFW Example Surface Loader](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartupTest/VkStartupTest/VkStartupTest/GLFWSurfaceLoader.h)
+
 
 <!-- LICENSE -->
 ## License
