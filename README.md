@@ -77,7 +77,7 @@ Additionally, support for multiple surfaces exists but is not required.  If at l
 
 ### Prerequisites
 
-This project relies on CMake and optionally Conan for dependency installation.  The following dependencies are required: 
+This project relies on CMake and optionally Conan for dependency installation.  Conan will install dependencies automatically.  The following dependencies are required: 
 * VulkanSDK
 * VulkanMemoryAllocator
 * GLFW (If building the VkStartupTest project); For production use, any windowing system (GLFW, SDL, etc.) is fine.
