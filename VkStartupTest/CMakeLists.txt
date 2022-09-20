@@ -30,8 +30,8 @@ set(LinkDirectories
 )
 
 if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-	message("Using Conan for dependency management")
-	if(NOT ConanSetupHasRun)
+	message("Using Conan for dependency management: ${TargetName}")
+	if(NOT ${ConanSetupHasRun})
 		message("Loading Conan macros")
 		include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 		conan_basic_setup(TARGETS NO_OUTPUT_DIRS)

@@ -27,7 +27,7 @@
   <h1 align="center">VkStartup</h1>
 
   <p align="center">
-    Vulkan startup library to jumpstart your projects!
+    Vulkan library to jumpstart your projects!
     <br />
     <br />
   </p>
