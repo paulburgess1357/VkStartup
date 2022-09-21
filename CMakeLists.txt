@@ -27,8 +27,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(${DEP_VkShared})
 
-set(IncludeDirectories ${CMAKE_CURRENT_SOURCE_DIR}/${TargetName} ${VkShared_SOURCE_DIR}/${DEP_VkShared})
-set(LinkDirectories ${DEP_VkShared})
+set(IncludeDirectories 
+	${CMAKE_CURRENT_SOURCE_DIR}/${TargetName} 
+	${VkShared_SOURCE_DIR}/${DEP_VkShared}
+)
+set(LinkDirectories 
+	${DEP_VkShared}
+)
 
 set(ConanSetupHasRun False)
 if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)

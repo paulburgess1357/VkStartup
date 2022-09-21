@@ -19,8 +19,15 @@ target_compile_options(${TargetName} PRIVATE
 set(DEP_VkShared VkShared)
 set(DEP_VkStartup VkStartup)
 
-set(IncludeDirectories ${CMAKE_CURRENT_SOURCE_DIR}/${TargetName} ${VkShared_SOURCE_DIR}/${DEP_VkShared} ${CMAKE_SOURCE_DIR}/${DEP_VkStartup})
-set(LinkDirectories ${DEP_VkShared} ${DEP_VkStartup})
+set(IncludeDirectories 
+	${CMAKE_CURRENT_SOURCE_DIR}/${TargetName} 
+	${VkShared_SOURCE_DIR}/${DEP_VkShared} 
+	${CMAKE_SOURCE_DIR}/${DEP_VkStartup}
+)
+set(LinkDirectories 
+	${DEP_VkShared} 
+	${DEP_VkStartup}
+)
 
 if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 	message("Using Conan for dependency management")
