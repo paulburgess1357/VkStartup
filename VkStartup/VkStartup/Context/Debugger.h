@@ -18,8 +18,9 @@ class VkDebugger {
  private:
   void reset();
   [[nodiscard]] static VKAPI_ATTR VkBool32 VKAPI_CALL
-  debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type,
-                 const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
+  debug_callback([[maybe_unused]] VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+                 [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT type,
+                 const VkDebugUtilsMessengerCallbackDataEXT* callback_data, [[maybe_unused]] void* user_data);
   void init();
   [[nodiscard]] static VkResult create_debug_messenger_ext(VkInstance instance,
                                                            const VkDebugUtilsMessengerCreateInfoEXT* create_info,
