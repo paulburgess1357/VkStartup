@@ -11,6 +11,7 @@ namespace VkStartup {
 
 struct VkSwapchainContext {
   std::unique_ptr<SurfaceLoader> surface_loader{};
+  Swapchain::SwapchainFormatDetails swapchain_format_details{};
 
   std::unique_ptr<VkSwapchainHandle> swapchain{};
   VkSwapchainKHR vk_swapchain{VK_NULL_HANDLE};
@@ -19,6 +20,7 @@ struct VkSwapchainContext {
 
   std::vector<VkImageViewHandle> image_views{};
   std::vector<VkImageView> vk_image_views{};
+
 };
 
 struct VkContext {

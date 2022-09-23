@@ -234,6 +234,7 @@ void InitContext::init_swapchain() {
       // Swapchain creation details (likely the same for all windows but not required)
       const auto selected_swapchain_details = swapchain_data.second.surface_loader->select_swapchain_format(
           supported_swapchain_details);
+      swapchain_data.second.swapchain_format_details = selected_swapchain_details;
 
       // Initialize the swapchain using 'selected_swapchain_details'
       const auto unique_queues_vec = Queues::unique_queues(m_context.vk_queues);  // Sharing mode
