@@ -3,7 +3,8 @@
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
-namespace VulkanUtilities::VkStartup::CreateInfo {
+namespace VkStartup::CreateInfo {
+
 [[nodiscard]] inline VkApplicationInfo vk_application_info() {
   VkApplicationInfo app_info = {};
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -70,8 +71,8 @@ namespace VulkanUtilities::VkStartup::CreateInfo {
 }
 
 [[nodiscard]] inline VmaAllocatorCreateInfo vma_allocator_info(VkInstance vk_instance, VkDevice vk_device,
-                                                      VkPhysicalDevice vk_physical_device,
-                                                      const uint32_t vk_api_version) {
+                                                               VkPhysicalDevice vk_physical_device,
+                                                               const uint32_t vk_api_version) {
   VmaAllocatorCreateInfo info = {};
   info.instance = vk_instance;
   info.device = vk_device;
@@ -80,4 +81,4 @@ namespace VulkanUtilities::VkStartup::CreateInfo {
   return info;
 }
 
-}  // namespace VulkanUtilities::VkStartup::CreateInfo
+}  // namespace VkStartup::CreateInfo

@@ -5,7 +5,7 @@
 #include <vulkan/vulkan.h>
 #include <algorithm>
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
 
 class SurfaceLoader {
  public:
@@ -71,4 +71,4 @@ class SurfaceLoader {
   static inline std::vector<std::string> unique_surface_ids{};
 };
 
-}  // namespace VulkanUtilities::VkStartup
+}  // namespace VkStartup

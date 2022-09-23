@@ -2,7 +2,8 @@
 #include "VkStartup/Misc/CreateInfo.h"
 #include <vulkan/vulkan_core.h>
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
+
 class VkDebugger {
  public:
   explicit VkDebugger(VkInstance instance);
@@ -31,4 +32,5 @@ class VkDebugger {
   VkInstance m_vk_instance = VK_NULL_HANDLE;
   VkDebugUtilsMessengerEXT m_debug_messenger = VK_NULL_HANDLE;
 };
-}  // namespace VulkanUtilities::VkStartup
+
+}  // namespace VkStartup

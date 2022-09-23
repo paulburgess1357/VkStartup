@@ -7,7 +7,7 @@
 #include "VkShared/Enums.h"
 #include <memory>
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
 
 struct VkSwapchainContext {
   std::unique_ptr<SurfaceLoader> surface_loader{};
@@ -38,7 +38,6 @@ struct VkContext {
 
   std::unique_ptr<VmaAllocatorHandle> mem_alloc{};
   VmaAllocator vk_mem_alloc{VK_NULL_HANDLE};
-
 };
 
-}  // namespace VulkanUtilities::VkStartup
+}  // namespace VkStartup

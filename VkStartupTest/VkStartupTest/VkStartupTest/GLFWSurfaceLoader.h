@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-namespace VulkanUtilities::VkStartupTest {
+namespace VkStartupTest {
 
 // GLFW Surface Loader Example
 class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
@@ -98,4 +98,4 @@ class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
   GLFWwindow& m_window;
 };
 
-}  // namespace VulkanUtilities::VkStartupTest
+}  // namespace VkStartupTest

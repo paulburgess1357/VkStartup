@@ -9,7 +9,7 @@
 #include <cstring>
 #include <algorithm>
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
 void InitContext::init() {
   VkTrace("Running VkStartup");
   init_instance();
@@ -309,4 +309,8 @@ bool InitContext::layer_supported(const std::vector<VkLayerProperties>& supporte
   return false;
 }
 
-}  // namespace VulkanUtilities::VkStartup
+const VkContext& InitContext::context() const {
+  return m_context;
+}
+
+}  // namespace VkStartup

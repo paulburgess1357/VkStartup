@@ -5,7 +5,7 @@
 #include "VkShared/Macros.h"
 // ReSharper disable CppClangTidyClangDiagnosticShadow
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
 
 struct CreateDestroyInstance {
   void create(const VkInstanceCreateInfo& info) {
@@ -77,4 +77,4 @@ struct CreateDestroyVMA {
   VmaAllocator handle{VK_NULL_HANDLE};
 };
 
-}  // namespace VulkanUtilities::VkStartup
+}  // namespace VkStartup

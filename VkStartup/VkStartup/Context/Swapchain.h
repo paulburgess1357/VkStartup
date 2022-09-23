@@ -2,7 +2,7 @@
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
-namespace VulkanUtilities::VkStartup::Swapchain {
+namespace VkStartup::Swapchain {
 
 struct SwapchainFormatSupport {
   VkSurfaceCapabilitiesKHR capabilities = {};
@@ -16,7 +16,7 @@ struct SwapchainFormatDetails {
   VkExtent2D extent = {};
   uint32_t image_count{};
   VkSurfaceTransformFlagBitsKHR pretransform = {};
-  VkImageUsageFlags usage_flags {0};
+  VkImageUsageFlags usage_flags{0};
 };
 
 [[nodiscard]] inline SwapchainFormatSupport query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface) {
@@ -43,4 +43,4 @@ struct SwapchainFormatDetails {
   return swapchain_support;
 }
 
-}  // namespace VulkanUtilities::VkStartup::SwapchainUtility
+}  // namespace VkStartup::Swapchain

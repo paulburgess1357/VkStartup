@@ -1,7 +1,7 @@
 #pragma once
 #include <exception>
 
-namespace VulkanUtilities::VkStartupTest::Exceptions {
+namespace VkStartupTest::Exceptions {
 
 class VkStartupTestException final : public std::exception {
  public:
@@ -10,4 +10,4 @@ class VkStartupTestException final : public std::exception {
   }
 };
 
-}  // namespace Exceptions
+}  // namespace VkStartupTest::Exceptions

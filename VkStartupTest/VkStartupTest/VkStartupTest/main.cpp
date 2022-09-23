@@ -3,7 +3,7 @@
 #include "VkStartupTest/Exceptions.h"
 
 int main() {
-  VulkanUtilities::VkStartup::InitContextOptions options;
+  VkStartup::InitContextOptions options;
   options.enable_validation = true;
   options.desired_device_extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
@@ -14,16 +14,18 @@ int main() {
 
   if (!window) {
     glfwTerminate();
-    throw VulkanUtilities::VkStartupTest::Exceptions::VkStartupTestException();
+    throw VkStartupTest::Exceptions::VkStartupTestException();
   }
 
   // Load custom surface loader & extensions into options
-  options.custom_surface_loaders.emplace_back(std::make_unique<VulkanUtilities::VkStartupTest::GLFWSurfaceLoader>(*window, "main_window"));
-  options.custom_surface_loaders.emplace_back(std::make_unique<VulkanUtilities::VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
-  options.required_instance_extensions = VulkanUtilities::VkStartupTest::GLFWSurfaceLoader::extensions();
+  options.custom_surface_loaders.emplace_back(
+      std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window"));
+  options.custom_surface_loaders.emplace_back(
+      std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
+  options.required_instance_extensions = VkStartupTest::GLFWSurfaceLoader::extensions();
 
   // Create context
-  VulkanUtilities::VkStartup::InitContext context{std::move(options)};
+  VkStartup::InitContext context{std::move(options)};
 
   glfwDestroyWindow(window);
   return 0;

@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <memory>
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
 
 struct InitContextOptions {
   // Instance
@@ -25,7 +25,6 @@ struct InitContextOptions {
   // User defined physical device criteria.
   // If not defined, the default device selection
   // criteria will be used
-  // TODO test this (just make a copy of the default class and call it something else in VkTest)
   std::unique_ptr<PhysicalDevice> custom_physical_device_criteria{};
 
   // User defined surfaces creation (SDL, GLFW, etc.); Multiple surfaces can be drawn to:
@@ -37,6 +36,7 @@ class InitContext {
   explicit InitContext(InitContextOptions options) : m_options{std::move(options)} {
     init();
   }
+  [[nodiscard]] const VkContext& context() const;
 
  private:
   void init();
@@ -57,4 +57,4 @@ class InitContext {
   VkContext m_context;
 };
 
-}  // namespace VulkanUtilities::VkStartup
+}  // namespace VkStartup

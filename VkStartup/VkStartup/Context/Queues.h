@@ -2,7 +2,7 @@
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
-namespace VulkanUtilities::VkStartup::Queues {
+namespace VkStartup::Queues {
 
 struct QueueIndexHandle {
   uint32_t family_index{999};
@@ -23,4 +23,4 @@ struct QueueIndexHandle {
   return unique_queues_vec;
 }
 
-}  // namespace VulkanUtilities::VkStartup::Queues
+}  // namespace VkStartup::Queues

@@ -1,7 +1,8 @@
 #include "VkStartup/Context/Debugger.h"
 #include "VkStartup/Misc/Exceptions.h"
 #include "VkShared/Macros.h"
-namespace VulkanUtilities::VkStartup {
+
+namespace VkStartup {
 
 VkDebugger::VkDebugger(VkInstance instance) : m_vk_instance{instance} {
   init();
@@ -38,9 +39,10 @@ void VkDebugger::reset() {
 }
 
 #pragma warning(disable : 4100)
-VKAPI_ATTR VkBool32 VKAPI_CALL
-VkDebugger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type,
-                           const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data) {
+VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+                                                          VkDebugUtilsMessageTypeFlagsEXT type,
+                                                          const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+                                                          void* user_data) {
   VkError(callback_data->pMessage);
   return VK_FALSE;
 }
@@ -54,9 +56,9 @@ void VkDebugger::init() {
           Exceptions::VkStartupException());
 }
 VkResult VkDebugger::create_debug_messenger_ext(VkInstance instance,
-                                                              const VkDebugUtilsMessengerCreateInfoEXT* create_info,
-                                                              const VkAllocationCallbacks* allocator,
-                                                              VkDebugUtilsMessengerEXT* messenger) {
+                                                const VkDebugUtilsMessengerCreateInfoEXT* create_info,
+                                                const VkAllocationCallbacks* allocator,
+                                                VkDebugUtilsMessengerEXT* messenger) {
   if (const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
           vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
       func != nullptr) {
@@ -78,4 +80,4 @@ void VkDebugger::destroy(VkInstance instance, VkDebugUtilsMessengerEXT messenger
 VkInstance m_vk_instance = VK_NULL_HANDLE;
 VkDebugUtilsMessengerEXT m_debug_messenger = VK_NULL_HANDLE;
 
-}  // namespace VulkanUtilities::VkStartup
+}  // namespace VkStartup

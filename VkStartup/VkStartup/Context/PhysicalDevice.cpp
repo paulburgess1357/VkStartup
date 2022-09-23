@@ -5,7 +5,7 @@
 #include <map>
 #include <cstring>
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
 
 PhysicalDevice::PhysicalDevice(VkInstance instance, std::vector<const char*> desired_device_extension,
                                std::vector<const char*> required_device_extensions)
@@ -200,4 +200,4 @@ void PhysicalDeviceDefault::set_features_to_activate() {
   m_device_features_to_activate.geometryShader = VK_TRUE;
 }
 
-}  // namespace VulkanUtilities::VkStartup
+}  // namespace VkStartup

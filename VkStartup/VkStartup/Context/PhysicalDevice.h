@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <type_traits>
 
-namespace VulkanUtilities::VkStartup {
+namespace VkStartup {
 
 struct PhysicalDeviceInfo {
   VkPhysicalDevice vk_physical_device{VK_NULL_HANDLE};
@@ -69,4 +69,4 @@ class PhysicalDeviceDefault final : public PhysicalDevice {
                                                       const VkPhysicalDeviceFeatures& device_features);
 };
 
-}  // namespace VulkanUtilities::VkStartup
+}  // namespace VkStartup
