@@ -92,4 +92,44 @@ struct CreateDestroyVMA {
   VmaAllocator handle{VK_NULL_HANDLE};
 };
 
+class CreateDestroyFramebuffer {
+ public:
+  void create() {
+    handle = VK_NULL_HANDLE;
+  }
+  void create(const VkFramebufferCreateInfo& info, VkDevice vk_device) {
+    VkCheck(vkCreateFramebuffer(vk_device, &info, nullptr, &handle), Exceptions::VkRenderPassCreationException());
+    m_device = vk_device;
+  }
+  void destroy() const {
+    if (handle && m_device) {
+      vkDestroyFramebuffer(m_device, handle, nullptr);
+    }
+  }
+  VkFramebuffer handle{VK_NULL_HANDLE};
+
+ private:
+  VkDevice m_device{VK_NULL_HANDLE};
+};
+
+class CreateDestroyRenderPass {
+ public:
+  void create() {
+    handle = VK_NULL_HANDLE;
+  }
+  void create(const VkRenderPassCreateInfo& info, VkDevice vk_device) {
+    VkCheck(vkCreateRenderPass(vk_device, &info, nullptr, &handle), Exceptions::VkRenderPassCreationException());
+    m_device = vk_device;
+  }
+  void destroy() const {
+    if (handle && m_device) {
+      vkDestroyRenderPass(m_device, handle, nullptr);
+    }
+  }
+  VkRenderPass handle{VK_NULL_HANDLE};
+
+ private:
+  VkDevice m_device{VK_NULL_HANDLE};
+};
+
 }  // namespace VkStartup

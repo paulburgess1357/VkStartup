@@ -4,6 +4,7 @@
 #include "VkStartup/Context/PhysicalDevice.h"
 #include "VkStartup/Context/SurfaceLoader.h"
 #include "VkStartup/Context/Queues.h"
+#include "VkStartup/Context/Renderpass.h"
 #include "VkShared/Enums.h"
 #include <memory>
 
@@ -13,9 +14,7 @@ struct VkSwapchainContext {
   std::unique_ptr<SurfaceLoader> surface_loader{};
   Swapchain::SwapchainFormatDetails swapchain_format_details{};
   VkSwapchainHandle swapchain{};
-  std::vector<VkImage> vk_images{};
-  std::vector<VkImageViewHandle> image_views{};
-  // std::vector<VkImageView> vk_image_views{};
+  RenderpassBuffers rp_buffers{};
 };
 
 struct VkContext {

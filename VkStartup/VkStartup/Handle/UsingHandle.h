@@ -8,4 +8,6 @@ using VkDeviceHandle = VkShared::THandle<CreateDestroyDevice>;
 using VkSwapchainHandle = VkShared::THandle<CreateDestroySwapchain>;
 using VkImageViewHandle = VkShared::THandle<CreateDestroyImageView>;
 using VmaAllocatorHandle = VkShared::THandle<CreateDestroyVMA>;
+using VkFramebufferHandle = VkShared::THandle<CreateDestroyFramebuffer>;
+using VkRenderPassHandle = VkShared::THandle<CreateDestroyRenderPass>;
 }  // namespace VkStartup

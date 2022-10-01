@@ -136,12 +136,12 @@ void InitContext::init_physical_device() {
   if (!m_options.custom_surface_loaders.empty()) {
     // Check required and optional.  Technically its required
     // here, however its possible the user forgot:
-    const std::string swapchain_physical_device_extension{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    if (std::ranges::find(m_options.desired_device_extensions, swapchain_physical_device_extension) ==
+    const std::string swap_extension{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    if (std::ranges::find(m_options.desired_device_extensions, swap_extension) ==
             m_options.desired_device_extensions.end() &&
-        std::ranges::find(m_options.required_device_extensions, swapchain_physical_device_extension) ==
+        std::ranges::find(m_options.required_device_extensions, swap_extension) ==
             m_options.required_device_extensions.end()) {
-      m_options.required_device_extensions.emplace_back(swapchain_physical_device_extension.c_str());
+      m_options.required_device_extensions.emplace_back(swap_extension.c_str());
     }
   }
 
@@ -169,7 +169,6 @@ void InitContext::init_logical_device() {
 
   constexpr float queue_priority{1.0f};
   for (const auto& index : unique_family_indices) {
-    // ReSharper disable once CppUseStructuredBinding
     auto queue_create_info = CreateInfo::vk_device_queue_create_info();
     queue_create_info.queueFamilyIndex = index;
     queue_create_info.queueCount = 1;
@@ -178,7 +177,6 @@ void InitContext::init_logical_device() {
   }
 
   // Create logical device
-  // ReSharper disable once CppUseStructuredBinding
   auto logical_create_info = CreateInfo::vk_device_create_info();
   logical_create_info.pQueueCreateInfos = queue_create_infos.data();
   logical_create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
@@ -222,21 +220,21 @@ void InitContext::init_surfaces() {
 void InitContext::init_swapchain() {
   // Initialize swapchain
   if (!m_context.swapchain_context.empty()) {
-    for (auto& swapchain_data : m_context.swapchain_context) {
+    for (auto& [window_id, swapchain_data] : m_context.swapchain_context) {
       // Supported swapchain details.  This is dependent on the physical device.  The user
       // takes these details and uses them to determine what format they want for their swapchain
       const auto supported_swapchain_details = Swapchain::query_swapchain_support(
-          m_context.physical_device_info.vk_physical_device, swapchain_data.second.surface_loader->surface());
+          m_context.physical_device_info.vk_physical_device, swapchain_data.surface_loader->surface());
 
       // Swapchain creation details (likely the same for all windows but not required)
-      const auto selected_swapchain_details = swapchain_data.second.surface_loader->select_swapchain_format(
+      const auto selected_swapchain_details = swapchain_data.surface_loader->select_swapchain_format(
           supported_swapchain_details);
-      swapchain_data.second.swapchain_format_details = selected_swapchain_details;
+      swapchain_data.swapchain_format_details = selected_swapchain_details;
 
       // Initialize the swapchain using 'selected_swapchain_details'
       const auto unique_queues_vec = Queues::unique_queues(m_context.vk_queues);  // Sharing mode
       auto info = CreateInfo::vk_swapchain_create_info(unique_queues_vec);
-      info.surface = swapchain_data.second.surface_loader->surface();
+      info.surface = swapchain_data.surface_loader->surface();
       info.minImageCount = selected_swapchain_details.image_count;
       info.imageFormat = selected_swapchain_details.format.format;
       info.imageColorSpace = selected_swapchain_details.format.colorSpace;
@@ -247,21 +245,24 @@ void InitContext::init_swapchain() {
       info.imageArrayLayers = 1;
       info.imageUsage = selected_swapchain_details.usage_flags;
       info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-      info.oldSwapchain = swapchain_data.second.swapchain();
+      info.oldSwapchain = swapchain_data.swapchain();
 
-      swapchain_data.second.swapchain = VkSwapchainHandle{info, m_context.device()};
+      swapchain_data.swapchain = VkSwapchainHandle{info, m_context.device()};
 
       // Set swapchain images
       // Count is required because 'min image count' above is a request that isn't guarenteed
       uint32_t swap_image_count{};
-      vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.second.swapchain(), &swap_image_count, nullptr);
-      swapchain_data.second.vk_images.resize(swap_image_count);
-      vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.second.swapchain(), &swap_image_count,
-                              swapchain_data.second.vk_images.data());
+      vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.swapchain(), &swap_image_count, nullptr);
+      swapchain_data.rp_buffers.vk_images.resize(swap_image_count);
+
+      auto& [width, height, vk_images, image_views, renderpass, framebuffer] = swapchain_data.rp_buffers;
+      width = info.imageExtent.width;
+      height = info.imageExtent.height;
+      vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.swapchain(), &swap_image_count, vk_images.data());
 
       // Set swapchain image views
       for (size_t i = 0; i < swap_image_count; i++) {
-        auto image_view_info = CreateInfo::vk_image_view_create_info(swapchain_data.second.vk_images[i]);
+        auto image_view_info = CreateInfo::vk_image_view_create_info(vk_images[i]);
         image_view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
         image_view_info.format = selected_swapchain_details.format.format;
         image_view_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -273,9 +274,7 @@ void InitContext::init_swapchain() {
         image_view_info.subresourceRange.levelCount = 1;
         image_view_info.subresourceRange.baseArrayLayer = 0;
         image_view_info.subresourceRange.layerCount = 1;
-
-        swapchain_data.second.image_views.emplace_back(image_view_info, m_context.device());
-        // swapchain_data.second.vk_image_views.emplace_back(swapchain_data.second.image_views.at(i)());
+        image_views.emplace_back(image_view_info, m_context.device());
       }
     }
   }

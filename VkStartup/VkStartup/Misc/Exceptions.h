@@ -10,4 +10,18 @@ class VkStartupException final : public std::exception {
   }
 };
 
+class VkRenderPassCreationException final : public std::exception {
+ public:
+  [[nodiscard]] const char* what() const noexcept override {
+    return "Failed to create renderpass";
+  }
+};
+
+class VkGraphicsPipelineCreationException final : public std::exception {
+ public:
+  [[nodiscard]] const char* what() const noexcept override {
+    return "Failed to create graphics pipeline";
+  }
+};
+
 }  // namespace VkStartup::Exceptions

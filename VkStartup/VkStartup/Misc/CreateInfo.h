@@ -81,4 +81,18 @@ namespace VkStartup::CreateInfo {
   return info;
 }
 
+[[nodiscard]] inline VkRenderPassCreateInfo vk_renderpass_create_info() {
+  VkRenderPassCreateInfo info = {};
+  info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  return info;
+}
+
+[[nodiscard]] inline VkFramebufferCreateInfo vk_framebuffer_create_info(const uint32_t width, const uint32_t height) {
+  VkFramebufferCreateInfo info = {};
+  info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+  info.width = width;
+  info.height = height;
+  return info;
+}
+
 }  // namespace VkStartup::CreateInfo
