@@ -123,12 +123,11 @@ void InitContext::init_instance() {
   }
 
   // Create instance
-  m_context.instance = std::make_unique<VkInstanceHandle>(create_info);
-  m_context.vk_instance = m_context.instance->handle();
+  m_context.instance = VkInstanceHandle{create_info};
 
   // Enable full debugging if its included in layers
   if (m_options.enable_validation) {
-    m_context.debugger = std::make_unique<VkDebugger>(m_context.vk_instance);
+    m_context.debugger = std::make_unique<VkDebugger>(m_context.instance());
   }
 }
 
@@ -151,7 +150,7 @@ void InitContext::init_physical_device() {
     m_context.physical_device_info = m_options.custom_physical_device_criteria->physical_device_info();
   } else {
     // Default physical device selection
-    PhysicalDeviceDefault default_physical_device{m_context.vk_instance, m_options.desired_device_extensions,
+    PhysicalDeviceDefault default_physical_device{m_context.instance(), m_options.desired_device_extensions,
                                                   m_options.required_device_extensions};
     m_context.physical_device_info = default_physical_device.physical_device_info();
   }
@@ -191,9 +190,7 @@ void InitContext::init_logical_device() {
       m_context.physical_device_info.device_extensions.size());
   logical_create_info.ppEnabledExtensionNames = m_context.physical_device_info.device_extensions.data();
 
-  m_context.device = std::make_unique<VkDeviceHandle>(logical_create_info,
-                                                      m_context.physical_device_info.vk_physical_device);
-  m_context.vk_device = m_context.device->handle();
+  m_context.device = VkDeviceHandle{logical_create_info, m_context.physical_device_info.vk_physical_device};
 }
 
 void InitContext::init_queue_handles() {
@@ -201,7 +198,7 @@ void InitContext::init_queue_handles() {
     if (!m_context.vk_queues.contains(family)) {
       VkQueue queue{VK_NULL_HANDLE};
       // Only one queue per family is being used (hence the 0).
-      vkGetDeviceQueue(m_context.vk_device, family_index, 0, &queue);
+      vkGetDeviceQueue(m_context.device(), family_index, 0, &queue);
       if (!queue) {
         VkError("Unable to create queue handle");
         throw Exceptions::VkStartupException();
@@ -214,7 +211,7 @@ void InitContext::init_queue_handles() {
 void InitContext::init_surfaces() {
   if (!m_options.custom_surface_loaders.empty()) {
     for (auto& surface_loader : m_options.custom_surface_loaders) {
-      surface_loader->init(m_context.vk_instance);
+      surface_loader->init(m_context.instance());
       m_context.swapchain_context[surface_loader->id()].surface_loader = std::move(surface_loader);
     }
   } else {
@@ -250,17 +247,16 @@ void InitContext::init_swapchain() {
       info.imageArrayLayers = 1;
       info.imageUsage = selected_swapchain_details.usage_flags;
       info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-      info.oldSwapchain = swapchain_data.second.vk_swapchain;
+      info.oldSwapchain = swapchain_data.second.swapchain();
 
-      swapchain_data.second.swapchain = std::make_unique<VkSwapchainHandle>(info, m_context.vk_device);
-      swapchain_data.second.vk_swapchain = swapchain_data.second.swapchain->handle();
+      swapchain_data.second.swapchain = VkSwapchainHandle{info, m_context.device()};
 
       // Set swapchain images
       // Count is required because 'min image count' above is a request that isn't guarenteed
       uint32_t swap_image_count{};
-      vkGetSwapchainImagesKHR(m_context.vk_device, swapchain_data.second.vk_swapchain, &swap_image_count, nullptr);
+      vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.second.swapchain(), &swap_image_count, nullptr);
       swapchain_data.second.vk_images.resize(swap_image_count);
-      vkGetSwapchainImagesKHR(m_context.vk_device, swapchain_data.second.vk_swapchain, &swap_image_count,
+      vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.second.swapchain(), &swap_image_count,
                               swapchain_data.second.vk_images.data());
 
       // Set swapchain image views
@@ -278,18 +274,17 @@ void InitContext::init_swapchain() {
         image_view_info.subresourceRange.baseArrayLayer = 0;
         image_view_info.subresourceRange.layerCount = 1;
 
-        swapchain_data.second.image_views.emplace_back(image_view_info, m_context.vk_device);
-        swapchain_data.second.vk_image_views.emplace_back(swapchain_data.second.image_views.at(i).handle());
+        swapchain_data.second.image_views.emplace_back(image_view_info, m_context.device());
+        // swapchain_data.second.vk_image_views.emplace_back(swapchain_data.second.image_views.at(i)());
       }
     }
   }
 }
 
 void InitContext::init_vma() {
-  auto info = CreateInfo::vma_allocator_info(m_context.vk_instance, m_context.vk_device,
+  auto info = CreateInfo::vma_allocator_info(m_context.instance(), m_context.device(),
                                              m_context.physical_device_info.vk_physical_device, m_options.api_version);
-  m_context.mem_alloc = std::make_unique<VmaAllocatorHandle>(info);
-  m_context.vk_mem_alloc = m_context.mem_alloc->handle();
+  m_context.mem_alloc = VmaAllocatorHandle{info};
 }
 
 bool InitContext::extension_supported(const std::vector<VkExtensionProperties>& supported, const char* value_to_check) {
