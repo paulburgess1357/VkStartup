@@ -69,20 +69,17 @@ void PhysicalDevice::set_queue_indices() {
   int i = 0;
   for (const auto& family : queue_families) {
     if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      constexpr auto graphics = VkShared::Enums::QueueFamily::Graphics;
-      if (!m_queue_indices.contains(graphics)) {
+      if (constexpr auto graphics = VkShared::Enums::QueueFamily::Graphics; !m_queue_indices.contains(graphics)) {
         m_queue_indices[graphics] = i;
       }
     }
     if (family.queueFlags & VK_QUEUE_TRANSFER_BIT) {
-      constexpr auto transfer = VkShared::Enums::QueueFamily::Transfer;
-      if (!m_queue_indices.contains(transfer)) {
+      if (constexpr auto transfer = VkShared::Enums::QueueFamily::Transfer; !m_queue_indices.contains(transfer)) {
         m_queue_indices[transfer] = i;
       }
     }
     if (family.queueFlags & VK_QUEUE_COMPUTE_BIT) {
-      constexpr auto compute = VkShared::Enums::QueueFamily::Compute;
-      if (!m_queue_indices.contains(compute)) {
+      if (constexpr auto compute = VkShared::Enums::QueueFamily::Compute; !m_queue_indices.contains(compute)) {
         m_queue_indices[compute] = i;
       }
     }

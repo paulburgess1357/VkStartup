@@ -82,9 +82,9 @@ void InitContext::init_instance() {
   }
 
   if (m_options.enable_validation) {
-    const auto val_layer_name = "VK_LAYER_KHRONOS_validation";
     const auto debug_ext_name = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
-    if (layer_supported(supported_layers, val_layer_name) &&
+    if (const auto val_layer_name = "VK_LAYER_KHRONOS_validation";
+        layer_supported(supported_layers, val_layer_name) &&
         extension_supported(supported_extensions, debug_ext_name)) {
       layers.push_back(val_layer_name);
       extensions.push_back(debug_ext_name);

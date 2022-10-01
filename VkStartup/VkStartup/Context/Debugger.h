@@ -1,5 +1,4 @@
 #pragma once
-#include "VkStartup/Misc/CreateInfo.h"
 #include <vulkan/vulkan_core.h>
 
 namespace VkStartup {

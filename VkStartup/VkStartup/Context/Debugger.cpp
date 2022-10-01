@@ -1,5 +1,6 @@
 #include "VkStartup/Context/Debugger.h"
 #include "VkStartup/Misc/Exceptions.h"
+#include "VkStartup/Misc/CreateInfo.h"
 #include "VkShared/Macros.h"
 
 namespace VkStartup {
