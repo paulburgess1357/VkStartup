@@ -304,7 +304,7 @@ bool InitContext::layer_supported(const std::vector<VkLayerProperties>& supporte
   return false;
 }
 
-const VkContext& InitContext::context() const {
+VkContext& InitContext::context() {
   return m_context;
 }
 

@@ -36,7 +36,7 @@ class InitContext {
   explicit InitContext(InitContextOptions options) : m_options{std::move(options)} {
     init();
   }
-  [[nodiscard]] const VkContext& context() const;
+  [[nodiscard]] VkContext& context();
 
  private:
   void init();
