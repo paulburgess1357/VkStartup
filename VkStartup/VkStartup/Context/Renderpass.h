@@ -8,10 +8,10 @@ namespace VkStartup {
 struct RenderpassBuffers {
   uint32_t width{0};
   uint32_t height{0};
+  VkRenderPassHandle renderpass{};
   std::vector<VkImage> vk_images{VK_NULL_HANDLE};
   std::vector<VkImageViewHandle> image_views{};
-  VkRenderPassHandle renderpass{};
-  VkFramebufferHandle framebuffer{};
+  std::vector<VkFramebufferHandle> framebuffers{};
 };
 
 struct RenderpassData {
