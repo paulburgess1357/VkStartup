@@ -255,7 +255,7 @@ void InitContext::init_swapchain() {
       vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.swapchain(), &swap_image_count, nullptr);
       swapchain_data.rp_buffers.vk_images.resize(swap_image_count);
 
-      auto& [width, height, vk_images, image_views, renderpass, framebuffer] = swapchain_data.rp_buffers;
+      auto& [width, height, renderpass, vk_images, image_views, framebuffers] = swapchain_data.rp_buffers;
       width = info.imageExtent.width;
       height = info.imageExtent.height;
       vkGetSwapchainImagesKHR(m_context.device(), swapchain_data.swapchain(), &swap_image_count, vk_images.data());
