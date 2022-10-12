@@ -46,12 +46,14 @@ class InitContext {
   void init_queue_handles();
   void init_surfaces();
   void init_swapchain();
+  void init_presentation();
   void init_vma();
 
   [[nodiscard]] static bool extension_supported(const std::vector<VkExtensionProperties>& supported,
                                                 const char* value_to_check);
   [[nodiscard]] static bool layer_supported(const std::vector<VkLayerProperties>& supported,
                                             const char* value_to_check);
+  [[nodiscard]] inline std::vector<uint32_t> unique_queues() const;
 
   InitContextOptions m_options;
   VkContext m_context;

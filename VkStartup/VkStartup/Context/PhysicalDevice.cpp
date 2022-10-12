@@ -60,6 +60,8 @@ void PhysicalDevice::select_physical_device() {
 }
 
 void PhysicalDevice::set_queue_indices() {
+  using VkShared::Enums::QueueFamily;
+
   uint32_t queue_family_count = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(m_vk_physical_device, &queue_family_count, nullptr);
 
@@ -69,17 +71,17 @@ void PhysicalDevice::set_queue_indices() {
   int i = 0;
   for (const auto& family : queue_families) {
     if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      if (constexpr auto graphics = VkShared::Enums::QueueFamily::Graphics; !m_queue_indices.contains(graphics)) {
+      if (constexpr auto graphics = QueueFamily::Graphics; !m_queue_indices.contains(graphics)) {
         m_queue_indices[graphics] = i;
       }
     }
     if (family.queueFlags & VK_QUEUE_TRANSFER_BIT) {
-      if (constexpr auto transfer = VkShared::Enums::QueueFamily::Transfer; !m_queue_indices.contains(transfer)) {
+      if (constexpr auto transfer = QueueFamily::Transfer; !m_queue_indices.contains(transfer)) {
         m_queue_indices[transfer] = i;
       }
     }
     if (family.queueFlags & VK_QUEUE_COMPUTE_BIT) {
-      if (constexpr auto compute = VkShared::Enums::QueueFamily::Compute; !m_queue_indices.contains(compute)) {
+      if (constexpr auto compute = QueueFamily::Compute; !m_queue_indices.contains(compute)) {
         m_queue_indices[compute] = i;
       }
     }
@@ -87,8 +89,8 @@ void PhysicalDevice::set_queue_indices() {
   }
 
   // If no transfer queue exists, use graphics queue
-  constexpr auto transfer = VkShared::Enums::QueueFamily::Transfer;
-  constexpr auto graphics = VkShared::Enums::QueueFamily::Graphics;
+  constexpr auto transfer = QueueFamily::Transfer;
+  constexpr auto graphics = QueueFamily::Graphics;
   if (!m_queue_indices.contains(transfer)) {
     if (m_queue_indices.contains(graphics)) {
       m_queue_indices[transfer] = m_queue_indices[graphics];

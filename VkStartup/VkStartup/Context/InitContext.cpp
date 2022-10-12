@@ -6,6 +6,7 @@
 #include "VkShared/Macros.h"
 #include <memory>
 #include <unordered_set>
+#include <vector>
 #include <cstring>
 #include <algorithm>
 
@@ -17,6 +18,7 @@ void InitContext::init() {
   init_logical_device();
   init_queue_handles();
   init_surfaces();
+  init_presentation();
   init_swapchain();
   init_vma();
 }
@@ -217,6 +219,33 @@ void InitContext::init_surfaces() {
   }
 }
 
+void InitContext::init_presentation() {
+  if (!m_context.swapchain_context.empty()) {
+    for (auto& [id, swap_ctx] : m_context.swapchain_context) {
+      const auto vk_physical_device = m_context.physical_device_info.vk_physical_device;
+
+      uint32_t queue_family_count = 0;
+      vkGetPhysicalDeviceQueueFamilyProperties(vk_physical_device, &queue_family_count, nullptr);
+
+      VkBool32 present_support = false;
+      for (uint32_t i = 0; i < queue_family_count; i++) {
+        vkGetPhysicalDeviceSurfaceSupportKHR(vk_physical_device, i, swap_ctx.surface_loader->surface(),
+                                             &present_support);
+
+        if (present_support) {
+          swap_ctx.present_queue.family_index = i;
+          vkGetDeviceQueue(m_context.device(), i, 0, &swap_ctx.present_queue.handle);
+          break;
+        }
+      }
+
+      if (!present_support) {
+        VkWarning("No presentation queue found for the swapchain surface id: " + id);
+      }
+    }
+  }
+}
+
 void InitContext::init_swapchain() {
   // Initialize swapchain
   if (!m_context.swapchain_context.empty()) {
@@ -232,7 +261,7 @@ void InitContext::init_swapchain() {
       swapchain_data.swapchain_format_details = selected_swapchain_details;
 
       // Initialize the swapchain using 'selected_swapchain_details'
-      const auto unique_queues_vec = Queues::unique_queues(m_context.vk_queues);  // Sharing mode
+      const auto unique_queues_vec = unique_queues();  // Sharing mode //
       auto info = CreateInfo::vk_swapchain_create_info(unique_queues_vec);
       info.surface = swapchain_data.surface_loader->surface();
       info.minImageCount = selected_swapchain_details.image_count;
@@ -302,6 +331,23 @@ bool InitContext::layer_supported(const std::vector<VkLayerProperties>& supporte
     }
   }
   return false;
+}
+
+std::vector<uint32_t> InitContext::unique_queues() const {
+  // Check other family queues (based on the VkPhysicalDevice queues)
+  std::unordered_set<uint32_t> unique_queues;
+
+  // Standard queues
+  for (const auto& [family, queue] : m_context.vk_queues) {
+    unique_queues.insert(queue.family_index);
+  }
+
+  // Swapchain queues (can vary if multiple surfaces)
+  for (const auto& [id, swap_ctx] : m_context.swapchain_context) {
+    unique_queues.insert(swap_ctx.present_queue.family_index);
+  }
+
+  return {unique_queues.begin(), unique_queues.end()};
 }
 
 VkContext& InitContext::context() {

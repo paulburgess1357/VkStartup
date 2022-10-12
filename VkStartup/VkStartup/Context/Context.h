@@ -15,6 +15,7 @@ struct VkSwapchainContext {
   Swapchain::SwapchainFormatDetails swapchain_format_details{};
   VkSwapchainHandle swapchain{};
   RenderpassBuffers rp_buffers{};
+  Queues::QueueIndexHandle present_queue;
 };
 
 struct VkContext {
