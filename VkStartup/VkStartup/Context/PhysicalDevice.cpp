@@ -101,8 +101,8 @@ void PhysicalDevice::set_queue_indices() {
 
 bool PhysicalDevice::extension_supported(const std::vector<VkExtensionProperties>& supported,
                                          const char* value_to_check) {
-  for (const auto& val : supported) {
-    if (strcmp(val.extensionName, value_to_check) == 0) {
+  for (const auto& [extensionName, specVersion] : supported) {
+    if (strcmp(extensionName, value_to_check) == 0) {
       return true;
     }
   }

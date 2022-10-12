@@ -40,10 +40,10 @@ void VkDebugger::reset() {
 }
 
 #pragma warning(disable : 4100)
-VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
-                                                          VkDebugUtilsMessageTypeFlagsEXT type,
-                                                          const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
-                                                          void* user_data) {
+VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugger::debug_callback(
+    [[maybe_unused]] VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+    [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+    [[maybe_unused]] void* user_data) {
   VkError(callback_data->pMessage);
   return VK_FALSE;
 }

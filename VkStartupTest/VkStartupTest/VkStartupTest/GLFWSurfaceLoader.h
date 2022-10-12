@@ -22,7 +22,7 @@ class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
 
   // User defined swapchain format override
   [[nodiscard]] VkStartup::Swapchain::SwapchainFormatDetails select_swapchain_format(
-      const VkStartup::Swapchain::SwapchainFormatSupport supported_details) const override {
+      const VkStartup::Swapchain::SwapchainFormatSupport& supported_details) const override {
     VkStartup::Swapchain::SwapchainFormatDetails details{};
 
     // Desired format and color space

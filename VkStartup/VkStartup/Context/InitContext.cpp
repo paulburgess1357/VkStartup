@@ -316,8 +316,8 @@ void InitContext::init_vma() {
 }
 
 bool InitContext::extension_supported(const std::vector<VkExtensionProperties>& supported, const char* value_to_check) {
-  for (const auto& val : supported) {
-    if (strcmp(val.extensionName, value_to_check) == 0) {
+  for (const auto& [extensionName, specVersion] : supported) {
+    if (strcmp(extensionName, value_to_check) == 0) {
       return true;
     }
   }
@@ -325,8 +325,8 @@ bool InitContext::extension_supported(const std::vector<VkExtensionProperties>& 
 }
 
 bool InitContext::layer_supported(const std::vector<VkLayerProperties>& supported, const char* value_to_check) {
-  for (const auto& val : supported) {
-    if (strcmp(val.layerName, value_to_check) == 0) {
+  for (const auto& [layerName, specVersion, implementationVersion, description] : supported) {
+    if (strcmp(layerName, value_to_check) == 0) {
       return true;
     }
   }

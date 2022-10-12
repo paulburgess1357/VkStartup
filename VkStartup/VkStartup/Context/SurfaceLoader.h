@@ -49,7 +49,7 @@ class SurfaceLoader {
 
   // User defined swapchain format given supported details
   [[nodiscard]] virtual Swapchain::SwapchainFormatDetails select_swapchain_format(
-      const Swapchain::SwapchainFormatSupport supported_details) const = 0;
+      const Swapchain::SwapchainFormatSupport& supported_details) const = 0;
 
  protected:
   // User defined surface initialization (glfw, sdl, etc.)
