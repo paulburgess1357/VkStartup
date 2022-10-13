@@ -5,7 +5,7 @@
 int main() {
   VkStartup::InitContextOptions options;
   options.enable_validation = true;
-  options.desired_device_extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+  options.desired_device_ext.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
   // Any windowing system is fine.  This example shows GLFW:
   glfwInit();
@@ -18,11 +18,11 @@ int main() {
   }
 
   // Load custom surface loader & extensions into options
-  options.custom_surface_loaders.emplace_back(
+  options.surface_loaders.emplace_back(
       std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window"));
-  options.custom_surface_loaders.emplace_back(
+  options.surface_loaders.emplace_back(
       std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
-  options.required_instance_extensions = VkStartupTest::GLFWSurfaceLoader::extensions();
+  options.required_instance_ext = VkStartupTest::GLFWSurfaceLoader::extensions();
 
   // Create context
   VkStartup::InitContext context{std::move(options)};

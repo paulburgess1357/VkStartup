@@ -13,7 +13,7 @@ PhysicalDevice::PhysicalDevice(VkInstance instance, std::vector<const char*> des
       m_required_device_extensions{std::move(required_device_extensions)}, m_vk_instance{instance} {
 }
 
-PhysicalDeviceInfo PhysicalDevice::physical_device_info() {
+PhysicalDeviceInfo PhysicalDevice::info() {
   if (!m_vk_physical_device) {
     select_physical_device();
   }

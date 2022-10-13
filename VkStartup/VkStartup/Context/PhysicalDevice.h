@@ -26,7 +26,7 @@ class PhysicalDevice {
   PhysicalDevice(PhysicalDevice&& source) noexcept = default;
   PhysicalDevice& operator=(PhysicalDevice&& rhs) noexcept = default;
 
-  [[nodiscard]] PhysicalDeviceInfo physical_device_info();
+  [[nodiscard]] PhysicalDeviceInfo info();
 
  protected:
   [[nodiscard]] static bool extension_supported(const std::vector<VkExtensionProperties>& supported,

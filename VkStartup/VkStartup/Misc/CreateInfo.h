@@ -2,18 +2,34 @@
 #include "VkStartup/Context/MemAlloc.h"
 #include <vulkan/vulkan_core.h>
 #include <vector>
+#include <string>
 
 namespace VkStartup::CreateInfo {
 
-[[nodiscard]] inline VkApplicationInfo vk_application_info() {
-  VkApplicationInfo app_info = {};
-  app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  return app_info;
+[[nodiscard]] inline VkApplicationInfo vk_application_info(const uint32_t app_version, const uint32_t engine_version,
+                                                           const uint32_t api_version) {
+  VkApplicationInfo info = {};
+  info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+  info.pApplicationName = "Vulkan";
+  info.applicationVersion = app_version;
+  info.pEngineName = "Vulkan Engine";
+  info.engineVersion = engine_version;
+  info.apiVersion = api_version;
+  return info;
 }
 
-[[nodiscard]] inline VkInstanceCreateInfo vk_instance_create_info() {
+[[nodiscard]] inline VkInstanceCreateInfo vk_instance_create_info(const std::vector<const char*>& extensions,
+                                                                  const std::vector<const char*>& layers,
+                                                                  const VkInstanceCreateFlags flags,
+                                                                  const VkApplicationInfo& app_info) {
   VkInstanceCreateInfo info = {};
   info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+  info.ppEnabledExtensionNames = extensions.data();
+  info.enabledLayerCount = static_cast<uint32_t>(layers.size());
+  info.ppEnabledLayerNames = layers.data();
+  info.pApplicationInfo = &app_info;
+  info.flags = flags;
   return info;
 }
 
@@ -29,16 +45,28 @@ namespace VkStartup::CreateInfo {
   return info;
 }
 
-[[nodiscard]] inline VkDeviceQueueCreateInfo vk_device_queue_create_info() {
+[[nodiscard]] inline VkDeviceQueueCreateInfo vk_device_queue_create_info(const uint32_t family_idx) {
   VkDeviceQueueCreateInfo info = {};
   info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  info.queueFamilyIndex = family_idx;
+  info.queueCount = 1;
   info.pNext = nullptr;
   return info;
 }
 
-[[nodiscard]] inline VkDeviceCreateInfo vk_device_create_info() {
+[[nodiscard]] inline VkDeviceCreateInfo vk_device_create_info(const std::vector<VkDeviceQueueCreateInfo>& queue_info,
+                                                              const VkPhysicalDeviceFeatures& features_to_activate,
+                                                              const std::vector<const char*>& extensions,
+                                                              const std::vector<const char*>& layers) {
   VkDeviceCreateInfo info = {};
   info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  info.pQueueCreateInfos = queue_info.data();
+  info.queueCreateInfoCount = static_cast<uint32_t>(queue_info.size());
+  info.pEnabledFeatures = &features_to_activate;
+  info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+  info.ppEnabledExtensionNames = extensions.data();
+  info.enabledLayerCount = static_cast<uint32_t>(layers.size());
+  info.ppEnabledLayerNames = layers.data();
   info.pNext = nullptr;
   return info;
 }
