@@ -4,7 +4,6 @@
 #include "VkStartup/Context/SurfaceLoader.h"
 #include <vector>
 #include <unordered_set>
-#include <type_traits>
 #include <memory>
 
 namespace VkStartup {
@@ -31,9 +30,7 @@ struct InitContextOptions {
 
 class InitContext {
  public:
-  explicit InitContext(InitContextOptions options) : m_opt{std::move(options)} {
-    init();
-  }
+  explicit InitContext(InitContextOptions options);
   [[nodiscard]] VkContext& context();
 
  private:
@@ -48,11 +45,10 @@ class InitContext {
   void init_vma();
 
   // Extension
-  [[nodiscard]] static std::vector<VkExtensionProperties> extension_properties();
-  [[nodiscard]] std::vector<const char*> extensions_to_load(
-      const std::vector<VkExtensionProperties>& supported_extensions) const;
-  [[nodiscard]] static bool extension_supported(const std::vector<VkExtensionProperties>& supported,
-                                                const char* value_to_check);
+  [[nodiscard]] static std::vector<VkExtensionProperties> ext_properties();
+  [[nodiscard]] std::vector<const char*> ext_to_load(const std::vector<VkExtensionProperties>& supported_ext) const;
+  [[nodiscard]] static bool ext_supported(const std::vector<VkExtensionProperties>& supported,
+                                          const char* value_to_check);
 
   // Layers
   [[nodiscard]] static std::vector<VkLayerProperties> layer_properties();
@@ -60,8 +56,8 @@ class InitContext {
   [[nodiscard]] static bool layer_supported(const std::vector<VkLayerProperties>& supported,
                                             const char* value_to_check);
 
-  void add_validation_requirements(std::vector<const char*>& extensions,
-                                   const std::vector<VkExtensionProperties>& supported_extensions,
+  void add_validation_requirements(std::vector<const char*>& ext,
+                                   const std::vector<VkExtensionProperties>& supported_ext,
                                    std::vector<const char*>& layers,
                                    const std::vector<VkLayerProperties>& supported_layers);
 

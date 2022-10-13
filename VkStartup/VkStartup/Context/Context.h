@@ -16,7 +16,7 @@ struct QueueIndexHandle {
 
 struct VkSwapchainContext {
   std::unique_ptr<SurfaceLoader> surface_loader{};
-  Swapchain::SwapchainFormatDetails swapchain_format_details{};
+  Swapchain::SwapchainFormatDetails swap_format_details{};
   VkSwapchainHandle swapchain{};
   RenderpassBuffers rp_buffers{};
   QueueIndexHandle present_queue;
@@ -27,7 +27,7 @@ struct VkContext {
   std::unique_ptr<VkDebugger> debugger{};
   PhysicalDeviceInfo phy_device_info{};
   VkDeviceHandle device{};
-  std::unordered_map<VkShared::Enums::QueueFamily, QueueIndexHandle> vk_queues{};
+  std::unordered_map<VkShared::Enums::QueueFamily, QueueIndexHandle> queues{};
   // Multiple surfaces to be drawn to
   std::unordered_map<std::string, VkSwapchainContext> swap_ctx{};
   VmaAllocatorHandle mem_alloc{};

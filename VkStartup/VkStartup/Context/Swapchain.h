@@ -19,7 +19,7 @@ struct SwapchainFormatDetails {
   VkImageUsageFlags usage_flags{0};
 };
 
-[[nodiscard]] inline SwapchainFormatSupport query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface) {
+[[nodiscard]] inline SwapchainFormatSupport query_swap_support(VkPhysicalDevice device, VkSurfaceKHR surface) {
   SwapchainFormatSupport swapchain_support;
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &swapchain_support.capabilities);
 

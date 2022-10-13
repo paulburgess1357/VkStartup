@@ -8,8 +8,14 @@
 #include <vector>
 #include <cstring>
 #include <algorithm>
+#include <type_traits>
 
 namespace VkStartup {
+
+InitContext::InitContext(InitContextOptions options) : m_opt{std::move(options)} {
+  init();
+}
+
 void InitContext::init() {
   VkTrace("Running VkStartup");
   init_instance();
@@ -32,15 +38,15 @@ void InitContext::init_instance() {
 #endif
 
   // Extensions
-  const auto supported_extensions = extension_properties();
-  auto extensions = extensions_to_load(supported_extensions);
+  const auto supported_ext = ext_properties();
+  auto ext = ext_to_load(supported_ext);
 
   // Layers
   const auto supported_layers = layer_properties();
   auto layers = layers_to_load(supported_layers);
 
   // Check and add validation
-  add_validation_requirements(extensions, supported_extensions, layers, supported_layers);
+  add_validation_requirements(ext, supported_ext, layers, supported_layers);
 
   // Update layers in context options as it needs to be
   // known when the logical device is created.  Extensions
@@ -51,7 +57,7 @@ void InitContext::init_instance() {
   // Create instance
   const VkApplicationInfo app_info = CreateInfo::vk_application_info(VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0),
                                                                      m_opt.api_version);
-  VkInstanceCreateInfo create_info = CreateInfo::vk_instance_create_info(extensions, layers, instance_flags, app_info);
+  VkInstanceCreateInfo create_info = CreateInfo::vk_instance_create_info(ext, layers, instance_flags, app_info);
 
   // Debug instance creation
   const auto instance_debug = VkDebugger::instance_debug_create_info();
@@ -96,7 +102,7 @@ void InitContext::init_logical_device() {
     unique_family_indices.insert(family_index);
   }
 
-  // Create device queue create info's for each unique queue
+  // Create device queue info for each unique queue
   std::vector<VkDeviceQueueCreateInfo> all_queue_info;
   all_queue_info.reserve(unique_family_indices.size());
 
@@ -115,7 +121,7 @@ void InitContext::init_logical_device() {
 
 void InitContext::init_queue_handles() {
   for (const auto& [family, family_index] : m_ctx.phy_device_info.vk_queue_family_indices) {
-    if (!m_ctx.vk_queues.contains(family)) {
+    if (!m_ctx.queues.contains(family)) {
       QueueIndexHandle queue{family_index, VK_NULL_HANDLE};
       // Only one queue per family is being used (hence the 0).
       vkGetDeviceQueue(m_ctx.device(), family_index, 0, &queue.handle);
@@ -123,7 +129,7 @@ void InitContext::init_queue_handles() {
         VkError("Unable to create queue handle");
         throw Exceptions::VkStartupException();
       }
-      m_ctx.vk_queues[family] = queue;
+      m_ctx.queues[family] = queue;
     }
   }
 }
@@ -142,7 +148,7 @@ void InitContext::init_surfaces() {
 void InitContext::init_presentation() {
   if (!m_ctx.swap_ctx.empty()) {
     for (auto& [id, swap_ctx] : m_ctx.swap_ctx) {
-      const auto vk_physical_device = m_ctx.phy_device_info.vk_physical_device;
+      const auto vk_physical_device = m_ctx.phy_device_info.vk_phy_device;
 
       uint32_t queue_family_count = 0;
       vkGetPhysicalDeviceQueueFamilyProperties(vk_physical_device, &queue_family_count, nullptr);
@@ -151,14 +157,12 @@ void InitContext::init_presentation() {
       for (uint32_t i = 0; i < queue_family_count; i++) {
         vkGetPhysicalDeviceSurfaceSupportKHR(vk_physical_device, i, swap_ctx.surface_loader->surface(),
                                              &present_support);
-
         if (present_support) {
           swap_ctx.present_queue.family_index = i;
           vkGetDeviceQueue(m_ctx.device(), i, 0, &swap_ctx.present_queue.handle);
           break;
         }
       }
-
       if (!present_support) {
         VkWarning("No presentation queue found for the swapchain surface id: " + id);
       }
@@ -171,13 +175,12 @@ void InitContext::init_swapchain() {
   if (!m_ctx.swap_ctx.empty()) {
     for (auto& [id, swap_ctx] : m_ctx.swap_ctx) {
       // Supported swapchain details based on the user defined physical device selection
-      const auto supported_swap_details = Swapchain::query_swapchain_support(m_ctx.phy_device_info.vk_physical_device,
-                                                                             swap_ctx.surface_loader->surface());
+      const auto supported_swap_details = Swapchain::query_swap_support(m_ctx.phy_device_info.vk_phy_device,
+                                                                        swap_ctx.surface_loader->surface());
 
       // Swapchain creation details (likely the same for all windows but not required)
-      swap_ctx.swapchain_format_details = swap_ctx.surface_loader->select_swapchain_format(supported_swap_details);
-      const auto& [format, present_mode, extent, image_count, pretransform,
-                   usage_flags] = swap_ctx.swapchain_format_details;
+      swap_ctx.swap_format_details = swap_ctx.surface_loader->select_swapchain_format(supported_swap_details);
+      const auto& [format, present_mode, extent, image_count, pretransform, usage_flags] = swap_ctx.swap_format_details;
 
       // Initialize the swapchain using 'selected_swapchain_details'
       const auto unique_queues_vec = unique_queues();  // Sharing mode
@@ -222,17 +225,16 @@ void InitContext::init_swapchain() {
 }
 
 void InitContext::init_vma() {
-  auto info = CreateInfo::vma_allocator_info(m_ctx.instance(), m_ctx.device(), m_ctx.phy_device_info.vk_physical_device,
+  auto info = CreateInfo::vma_allocator_info(m_ctx.instance(), m_ctx.device(), m_ctx.phy_device_info.vk_phy_device,
                                              m_opt.api_version);
   m_ctx.mem_alloc = VmaAllocatorHandle{info};
 }
 
-std::vector<const char*> InitContext::extensions_to_load(
-    const std::vector<VkExtensionProperties>& supported_extensions) const {
+std::vector<const char*> InitContext::ext_to_load(const std::vector<VkExtensionProperties>& supported_ext) const {
   // Check required extensions
   std::vector<const char*> extensions;
   for (const auto& value : m_opt.required_instance_ext) {
-    if (extension_supported(supported_extensions, value)) {
+    if (ext_supported(supported_ext, value)) {
       extensions.push_back(value);
     } else {
       VkError("Extension: " + std::string{value} + " is not supported");
@@ -242,7 +244,7 @@ std::vector<const char*> InitContext::extensions_to_load(
 
   // Check desired extensions
   for (const auto& value : m_opt.desired_instance_ext) {
-    if (extension_supported(supported_extensions, value)) {
+    if (ext_supported(supported_ext, value)) {
       extensions.push_back(value);
     } else {
       VkWarning("Extension: " + std::string{value} + " is not supported");
@@ -252,7 +254,7 @@ std::vector<const char*> InitContext::extensions_to_load(
   return extensions;
 }
 
-std::vector<VkExtensionProperties> InitContext::extension_properties() {
+std::vector<VkExtensionProperties> InitContext::ext_properties() {
   uint32_t ext_count{0};
   vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, nullptr);
   std::vector<VkExtensionProperties> ext{ext_count};
@@ -260,7 +262,7 @@ std::vector<VkExtensionProperties> InitContext::extension_properties() {
   return ext;
 }
 
-bool InitContext::extension_supported(const std::vector<VkExtensionProperties>& supported, const char* value_to_check) {
+bool InitContext::ext_supported(const std::vector<VkExtensionProperties>& supported, const char* value_to_check) {
   for (const auto& [extensionName, specVersion] : supported) {
     if (strcmp(extensionName, value_to_check) == 0) {
       return true;
@@ -310,17 +312,16 @@ std::vector<const char*> InitContext::layers_to_load(const std::vector<VkLayerPr
   return layers;
 }
 
-void InitContext::add_validation_requirements(std::vector<const char*>& extensions,
-                                              const std::vector<VkExtensionProperties>& supported_extensions,
+void InitContext::add_validation_requirements(std::vector<const char*>& ext,
+                                              const std::vector<VkExtensionProperties>& supported_ext,
                                               std::vector<const char*>& layers,
                                               const std::vector<VkLayerProperties>& supported_layers) {
   if (m_opt.enable_validation) {
     const auto debug_ext_name = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
     if (const auto val_layer_name = "VK_LAYER_KHRONOS_validation";
-        layer_supported(supported_layers, val_layer_name) &&
-        extension_supported(supported_extensions, debug_ext_name)) {
+        layer_supported(supported_layers, val_layer_name) && ext_supported(supported_ext, debug_ext_name)) {
       layers.push_back(val_layer_name);
-      extensions.push_back(debug_ext_name);
+      ext.push_back(debug_ext_name);
     } else {
       m_opt.enable_validation = false;
       VkWarning("Validation or debug extension not supported");
@@ -333,7 +334,7 @@ std::vector<uint32_t> InitContext::unique_queues() const {
   std::unordered_set<uint32_t> unique_queues;
 
   // Standard queues
-  for (const auto& [family, queue] : m_ctx.vk_queues) {
+  for (const auto& [family, queue] : m_ctx.queues) {
     unique_queues.insert(queue.family_index);
   }
 

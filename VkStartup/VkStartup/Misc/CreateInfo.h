@@ -2,7 +2,6 @@
 #include "VkStartup/Context/MemAlloc.h"
 #include <vulkan/vulkan_core.h>
 #include <vector>
-#include <string>
 
 namespace VkStartup::CreateInfo {
 
@@ -75,7 +74,6 @@ namespace VkStartup::CreateInfo {
     const std::vector<uint32_t>& unique_queue_family_indices) {
   VkSwapchainCreateInfoKHR info = {};
   info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-
   if (unique_queue_family_indices.size() > 1) {
     // Concurrent sharing
     info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -87,7 +85,6 @@ namespace VkStartup::CreateInfo {
     info.queueFamilyIndexCount = 0;
     info.pQueueFamilyIndices = nullptr;
   }
-
   return info;
 }
 

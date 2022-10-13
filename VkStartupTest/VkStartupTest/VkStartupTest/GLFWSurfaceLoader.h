@@ -11,8 +11,7 @@ namespace VkStartupTest {
 // GLFW Surface Loader Example
 class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
  public:
-  explicit GLFWSurfaceLoader(GLFWwindow& window, std::string surface_id)
-      : SurfaceLoader{std::move(surface_id)}, m_window{window} {
+  explicit GLFWSurfaceLoader(GLFWwindow& window, std::string id) : SurfaceLoader{std::move(id)}, m_window{window} {
   }
 
   // User defined surface initialization override
@@ -25,9 +24,11 @@ class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
       const VkStartup::Swapchain::SwapchainFormatSupport& supported_details) const override {
     VkStartup::Swapchain::SwapchainFormatDetails details{};
 
+    auto& [capabilities, formats, present_modes] = supported_details;
+
     // Desired format and color space
     bool desired_format_found{false};
-    for (const auto& available_format : supported_details.formats) {
+    for (const auto& available_format : formats) {
       if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB &&
           available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
         details.format = available_format;
@@ -38,12 +39,12 @@ class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
     // Default value
     if (!desired_format_found) {
       VkWarning("Desired swapchain not found.  Defaulting to first supported format and colorspace");
-      details.format = supported_details.formats.at(0);
+      details.format = formats.at(0);
     }
 
     // Desired presentation mode
     bool desired_presentation_mode_found{false};
-    for (const auto& available_present_mode : supported_details.present_modes) {
+    for (const auto& available_present_mode : present_modes) {
       if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR) {
         details.present_mode = available_present_mode;
         desired_presentation_mode_found = true;
@@ -52,38 +53,36 @@ class GLFWSurfaceLoader final : public VkStartup::SurfaceLoader {
 
     // Default value
     if (!desired_presentation_mode_found) {
+      VkWarning("Desired presentation mode not found.  Defaulting to FIFO");
       details.present_mode = VK_PRESENT_MODE_FIFO_KHR;
     }
 
     // Swap Extent
-    if (supported_details.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
-      details.extent = supported_details.capabilities.currentExtent;
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+      details.extent = capabilities.currentExtent;
     } else {
       int width{};
       int height{};
       glfwGetFramebufferSize(&m_window, &width, &height);
-      details.extent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-
-      details.extent.width = std::clamp(details.extent.width, supported_details.capabilities.minImageExtent.width,
-                                        supported_details.capabilities.maxImageExtent.width);
-      details.extent.height = std::clamp(details.extent.height, supported_details.capabilities.minImageExtent.height,
-                                         supported_details.capabilities.maxImageExtent.height);
+      details.extent = VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+      details.extent.width = std::clamp(details.extent.width, capabilities.minImageExtent.width,
+                                        capabilities.maxImageExtent.width);
+      details.extent.height = std::clamp(details.extent.height, capabilities.minImageExtent.height,
+                                         capabilities.maxImageExtent.height);
     }
 
     // Image count
-    details.image_count = supported_details.capabilities.minImageCount + 1;
+    details.image_count = capabilities.minImageCount + 1;
     // Check that we don't exeed the maximum supported image count
-    if (supported_details.capabilities.maxImageCount > 0 &&
-        details.image_count > supported_details.capabilities.maxImageCount) {
-      details.image_count = supported_details.capabilities.maxImageCount;
+    if (capabilities.maxImageCount > 0 && details.image_count > capabilities.maxImageCount) {
+      details.image_count = capabilities.maxImageCount;
     }
 
     // Pre-Transform
-    details.pretransform = supported_details.capabilities.currentTransform;
+    details.pretransform = capabilities.currentTransform;
 
     // Usage
     details.usage_flags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
     return details;
   }
 
