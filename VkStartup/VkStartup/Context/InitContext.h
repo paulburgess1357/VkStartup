@@ -4,7 +4,6 @@
 #include "VkStartup/Context/SurfaceLoader.h"
 #include <vector>
 #include <unordered_set>
-#include <type_traits>
 #include <memory>
 
 namespace VkStartup {
@@ -12,30 +11,26 @@ namespace VkStartup {
 struct InitContextOptions {
   // Instance
   uint32_t api_version{VK_API_VERSION_1_0};
-  std::vector<const char*> required_instance_extensions{};
-  std::vector<const char*> desired_instance_extensions{};
+  std::vector<const char*> required_instance_ext{};
+  std::vector<const char*> desired_instance_ext{};
   std::vector<const char*> required_layers{};
   std::vector<const char*> desired_layers{};
   bool enable_validation{false};
 
   // Device
-  std::vector<const char*> required_device_extensions{};
-  std::vector<const char*> desired_device_extensions{};
+  std::vector<const char*> required_device_ext{};
+  std::vector<const char*> desired_device_ext{};
 
   // User defined physical device criteria.
-  // If not defined, the default device selection
-  // criteria will be used
-  std::unique_ptr<PhysicalDevice> custom_physical_device_criteria{};
+  std::unique_ptr<PhysicalDevice> phy_device_criteria{};
 
   // User defined surfaces creation (SDL, GLFW, etc.); Multiple surfaces can be drawn to:
-  std::vector<std::unique_ptr<SurfaceLoader>> custom_surface_loaders;
+  std::vector<std::unique_ptr<SurfaceLoader>> surface_loaders;
 };
 
 class InitContext {
  public:
-  explicit InitContext(InitContextOptions options) : m_options{std::move(options)} {
-    init();
-  }
+  explicit InitContext(InitContextOptions options);
   [[nodiscard]] VkContext& context();
 
  private:
@@ -49,14 +44,27 @@ class InitContext {
   void init_presentation();
   void init_vma();
 
-  [[nodiscard]] static bool extension_supported(const std::vector<VkExtensionProperties>& supported,
-                                                const char* value_to_check);
+  // Extension
+  [[nodiscard]] static std::vector<VkExtensionProperties> ext_properties();
+  [[nodiscard]] std::vector<const char*> ext_to_load(const std::vector<VkExtensionProperties>& supported_ext) const;
+  [[nodiscard]] static bool ext_supported(const std::vector<VkExtensionProperties>& supported,
+                                          const char* value_to_check);
+
+  // Layers
+  [[nodiscard]] static std::vector<VkLayerProperties> layer_properties();
+  [[nodiscard]] std::vector<const char*> layers_to_load(const std::vector<VkLayerProperties>& supported_layers) const;
   [[nodiscard]] static bool layer_supported(const std::vector<VkLayerProperties>& supported,
                                             const char* value_to_check);
+
+  void add_validation_requirements(std::vector<const char*>& ext,
+                                   const std::vector<VkExtensionProperties>& supported_ext,
+                                   std::vector<const char*>& layers,
+                                   const std::vector<VkLayerProperties>& supported_layers);
+
   [[nodiscard]] inline std::vector<uint32_t> unique_queues() const;
 
-  InitContextOptions m_options;
-  VkContext m_context;
+  InitContextOptions m_opt;
+  VkContext m_ctx;
 };
 
 }  // namespace VkStartup

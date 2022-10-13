@@ -40,10 +40,10 @@ void VkDebugger::reset() {
 }
 
 #pragma warning(disable : 4100)
-VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
-                                                          VkDebugUtilsMessageTypeFlagsEXT type,
-                                                          const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
-                                                          void* user_data) {
+VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugger::debug_callback(
+    [[maybe_unused]] VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+    [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+    [[maybe_unused]] void* user_data) {
   VkError(callback_data->pMessage);
   return VK_FALSE;
 }
@@ -67,6 +67,7 @@ VkResult VkDebugger::create_debug_messenger_ext(VkInstance instance,
   }
   return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
+
 void VkDebugger::destroy(VkInstance instance, VkDebugUtilsMessengerEXT messenger,
                          const VkAllocationCallbacks* allocator) const {
   if (const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
@@ -77,8 +78,5 @@ void VkDebugger::destroy(VkInstance instance, VkDebugUtilsMessengerEXT messenger
     }
   }
 }
-
-VkInstance m_vk_instance = VK_NULL_HANDLE;
-VkDebugUtilsMessengerEXT m_debug_messenger = VK_NULL_HANDLE;
 
 }  // namespace VkStartup

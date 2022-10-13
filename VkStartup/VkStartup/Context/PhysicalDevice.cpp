@@ -7,25 +7,55 @@
 
 namespace VkStartup {
 
-PhysicalDevice::PhysicalDevice(VkInstance instance, std::vector<const char*> desired_device_extension,
-                               std::vector<const char*> required_device_extensions)
-    : m_desired_device_extensions{std::move(desired_device_extension)},
-      m_required_device_extensions{std::move(required_device_extensions)}, m_vk_instance{instance} {
+PhysicalDevice::PhysicalDevice(VkInstance instance, std::vector<const char*> desired_device_ext,
+                               std::vector<const char*> required_device_ext)
+    : m_desired_device_ext{std::move(desired_device_ext)}, m_required_device_ext{std::move(required_device_ext)},
+      m_vk_instance{instance} {
 }
 
-PhysicalDeviceInfo PhysicalDevice::physical_device_info() {
+PhysicalDeviceInfo PhysicalDevice::info() {
   if (!m_vk_physical_device) {
     select_physical_device();
   }
+
   PhysicalDeviceInfo info;
-  info.vk_physical_device = m_vk_physical_device;
+  info.vk_phy_device = m_vk_physical_device;
   info.vk_queue_family_indices = m_queue_indices;
   info.features_to_activate = m_device_features_to_activate;
-  info.device_extensions = device_extensions_to_use(m_vk_physical_device);
+  info.device_ext = device_ext_to_use(m_vk_physical_device);
   return info;
 }
 
 void PhysicalDevice::select_physical_device() {
+  // Use user defined physical device selection.  If not defined, the default
+  // selection will be used
+  const auto devices = physical_devices();
+  select_best_physical_device(devices);
+  if (!m_vk_physical_device) {
+    VkError("Failed to select a physical device based on criteria");
+    throw Exceptions::VkStartupException();
+  }
+
+  display_physical_device();
+
+  // Store properties of best selected physical device
+  vkGetPhysicalDeviceProperties(m_vk_physical_device, &m_device_properties);
+
+  // Store features to activate later
+  set_features_to_activate();
+
+  // Set queue indices
+  set_queue_indices();
+}
+
+void PhysicalDevice::display_physical_device() const {
+  // Display physical device info when debug
+  VkPhysicalDeviceProperties properties = {};
+  vkGetPhysicalDeviceProperties(m_vk_physical_device, &properties);
+  VkInfo("Selected Physical Device: " + std::string{properties.deviceName});
+}
+
+std::vector<VkPhysicalDevice> PhysicalDevice::physical_devices() const {
   uint32_t device_count = 0;
   vkEnumeratePhysicalDevices(m_vk_instance, &device_count, nullptr);
 
@@ -36,27 +66,7 @@ void PhysicalDevice::select_physical_device() {
   std::vector<VkPhysicalDevice> devices(device_count);
   vkEnumeratePhysicalDevices(m_vk_instance, &device_count, devices.data());
 
-  // Use user defined physical device selection.  If not defined, the default
-  // selection will be used
-  select_best_physical_device(devices);
-  if (!m_vk_physical_device) {
-    VkError("Failed to select a physical device based on criteria");
-    throw Exceptions::VkStartupException();
-  }
-
-  // Display physical device info when debug
-  VkPhysicalDeviceProperties properties = {};
-  vkGetPhysicalDeviceProperties(m_vk_physical_device, &properties);
-  VkInfo("Selected Physical Device: " + std::string{properties.deviceName});
-
-  // Store properties of best selected physical device
-  vkGetPhysicalDeviceProperties(m_vk_physical_device, &m_device_properties);
-
-  // Store features to activate later
-  set_features_to_activate();
-
-  // Set queue indices
-  set_queue_indices();
+  return devices;
 }
 
 void PhysicalDevice::set_queue_indices() {
@@ -71,45 +81,42 @@ void PhysicalDevice::set_queue_indices() {
   int i = 0;
   for (const auto& family : queue_families) {
     if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      if (constexpr auto graphics = QueueFamily::Graphics; !m_queue_indices.contains(graphics)) {
-        m_queue_indices[graphics] = i;
+      if (!m_queue_indices.contains(QueueFamily::Graphics)) {
+        m_queue_indices[QueueFamily::Graphics] = i;
       }
     }
     if (family.queueFlags & VK_QUEUE_TRANSFER_BIT) {
-      if (constexpr auto transfer = QueueFamily::Transfer; !m_queue_indices.contains(transfer)) {
-        m_queue_indices[transfer] = i;
+      if (!m_queue_indices.contains(QueueFamily::Transfer)) {
+        m_queue_indices[QueueFamily::Transfer] = i;
       }
     }
     if (family.queueFlags & VK_QUEUE_COMPUTE_BIT) {
-      if (constexpr auto compute = QueueFamily::Compute; !m_queue_indices.contains(compute)) {
-        m_queue_indices[compute] = i;
+      if (!m_queue_indices.contains(QueueFamily::Compute)) {
+        m_queue_indices[QueueFamily::Compute] = i;
       }
     }
     i++;
   }
 
   // If no transfer queue exists, use graphics queue
-  constexpr auto transfer = QueueFamily::Transfer;
-  constexpr auto graphics = QueueFamily::Graphics;
-  if (!m_queue_indices.contains(transfer)) {
-    if (m_queue_indices.contains(graphics)) {
-      m_queue_indices[transfer] = m_queue_indices[graphics];
+  if (!m_queue_indices.contains(QueueFamily::Transfer)) {
+    if (m_queue_indices.contains(QueueFamily::Graphics)) {
+      m_queue_indices[QueueFamily::Transfer] = m_queue_indices[QueueFamily::Graphics];
     }
-    m_queue_indices[transfer] = i;
+    m_queue_indices[QueueFamily::Transfer] = i;
   }
 }
 
-bool PhysicalDevice::extension_supported(const std::vector<VkExtensionProperties>& supported,
-                                         const char* value_to_check) {
-  for (const auto& val : supported) {
-    if (strcmp(val.extensionName, value_to_check) == 0) {
+bool PhysicalDevice::ext_supported(const std::vector<VkExtensionProperties>& supported, const char* value_to_check) {
+  for (const auto& [extensionName, specVersion] : supported) {
+    if (strcmp(extensionName, value_to_check) == 0) {
       return true;
     }
   }
   return false;
 }
 
-std::vector<const char*> PhysicalDevice::device_extensions_to_use(VkPhysicalDevice device) const {
+std::vector<const char*> PhysicalDevice::device_ext_to_use(VkPhysicalDevice device) const {
   // Check extensions
   uint32_t extension_count{0};
   vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
@@ -118,8 +125,8 @@ std::vector<const char*> PhysicalDevice::device_extensions_to_use(VkPhysicalDevi
 
   // Check required extensions
   std::vector<const char*> extensions;
-  for (const auto& value : m_required_device_extensions) {
-    if (extension_supported(supported_extensions, value)) {
+  for (const auto& value : m_required_device_ext) {
+    if (ext_supported(supported_extensions, value)) {
       extensions.push_back(value);
     } else {
       VkError("Required Device Extension: " + std::string{value} + " is not supported");
@@ -128,8 +135,8 @@ std::vector<const char*> PhysicalDevice::device_extensions_to_use(VkPhysicalDevi
   }
 
   // Check desired extensions
-  for (const auto& value : m_desired_device_extensions) {
-    if (extension_supported(supported_extensions, value)) {
+  for (const auto& value : m_desired_device_ext) {
+    if (ext_supported(supported_extensions, value)) {
       extensions.push_back(value);
     } else {
       VkWarning("Device Extension: " + std::string{value} + " is not supported");
@@ -137,6 +144,11 @@ std::vector<const char*> PhysicalDevice::device_extensions_to_use(VkPhysicalDevi
   }
 
   return extensions;
+}
+
+PhysicalDeviceDefault::PhysicalDeviceDefault(VkInstance instance, std::vector<const char*> desired_device_ext,
+                                             std::vector<const char*> required_device_ext)
+    : PhysicalDevice{instance, std::move(desired_device_ext), std::move(required_device_ext)} {
 }
 
 void PhysicalDeviceDefault::select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) {

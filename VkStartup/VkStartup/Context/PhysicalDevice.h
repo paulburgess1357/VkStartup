@@ -9,16 +9,16 @@
 namespace VkStartup {
 
 struct PhysicalDeviceInfo {
-  VkPhysicalDevice vk_physical_device{VK_NULL_HANDLE};
+  VkPhysicalDevice vk_phy_device{VK_NULL_HANDLE};
   std::unordered_map<VkShared::Enums::QueueFamily, uint32_t> vk_queue_family_indices{};
   VkPhysicalDeviceFeatures features_to_activate = {};
-  std::vector<const char*> device_extensions = {};
+  std::vector<const char*> device_ext = {};
 };
 
 class PhysicalDevice {
  public:
-  explicit PhysicalDevice(VkInstance instance, std::vector<const char*> desired_device_extension,
-                          std::vector<const char*> required_device_extensions);
+  explicit PhysicalDevice(VkInstance instance, std::vector<const char*> desired_device_ext,
+                          std::vector<const char*> required_device_ext);
   virtual ~PhysicalDevice() = default;
 
   PhysicalDevice(const PhysicalDevice& source) = default;
@@ -26,18 +26,18 @@ class PhysicalDevice {
   PhysicalDevice(PhysicalDevice&& source) noexcept = default;
   PhysicalDevice& operator=(PhysicalDevice&& rhs) noexcept = default;
 
-  [[nodiscard]] PhysicalDeviceInfo physical_device_info();
+  [[nodiscard]] PhysicalDeviceInfo info();
 
  protected:
-  [[nodiscard]] static bool extension_supported(const std::vector<VkExtensionProperties>& supported,
-                                                const char* value_to_check);
-  [[nodiscard]] std::vector<const char*> device_extensions_to_use(VkPhysicalDevice device) const;
+  [[nodiscard]] static bool ext_supported(const std::vector<VkExtensionProperties>& supported,
+                                          const char* value_to_check);
+  [[nodiscard]] std::vector<const char*> device_ext_to_use(VkPhysicalDevice device) const;
 
   VkPhysicalDevice m_vk_physical_device{VK_NULL_HANDLE};
   VkPhysicalDeviceFeatures m_device_features_to_activate = {};
 
-  std::vector<const char*> m_desired_device_extensions{};
-  std::vector<const char*> m_required_device_extensions{};
+  std::vector<const char*> m_desired_device_ext{};
+  std::vector<const char*> m_required_device_ext{};
 
  private:
   virtual void select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) = 0;
@@ -45,6 +45,8 @@ class PhysicalDevice {
 
   void select_physical_device();
   void set_queue_indices();
+  [[nodiscard]] std::vector<VkPhysicalDevice> physical_devices() const;
+  void display_physical_device() const;
 
   VkInstance m_vk_instance{VK_NULL_HANDLE};
 
@@ -57,10 +59,8 @@ class PhysicalDevice {
 // be implemented by the user in their own derived class
 class PhysicalDeviceDefault final : public PhysicalDevice {
  public:
-  explicit PhysicalDeviceDefault(VkInstance instance, std::vector<const char*> desired_device_extension,
-                                 std::vector<const char*> required_device_extensions)
-      : PhysicalDevice{instance, std::move(desired_device_extension), std::move(required_device_extensions)} {
-  }
+  explicit PhysicalDeviceDefault(VkInstance instance, std::vector<const char*> desired_device_ext,
+                                 std::vector<const char*> required_device_ext);
 
  private:
   void select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) override;
