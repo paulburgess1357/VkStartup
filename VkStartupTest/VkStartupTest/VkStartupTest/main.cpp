@@ -19,7 +19,7 @@ int main() {
 
   // Load custom surface loader & extensions into options
   options.surface_loaders.emplace_back(std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window"));
-  options.surface_loaders.emplace_back(std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
+  // options.surface_loaders.emplace_back(std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
   options.required_instance_ext = VkStartupTest::GLFWSurfaceLoader::extensions();
 
   // Create context

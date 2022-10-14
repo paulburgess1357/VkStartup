@@ -22,14 +22,17 @@ class SurfaceLoader {
   SurfaceLoader(const SurfaceLoader& source) = delete;
   SurfaceLoader& operator=(const SurfaceLoader& source) = delete;
 
-  SurfaceLoader(SurfaceLoader&& source) noexcept : khr_surface{source.khr_surface} {
+  SurfaceLoader(SurfaceLoader&& source) noexcept
+      : m_vk_instance{source.m_vk_instance}, khr_surface{source.khr_surface}, m_id{std::move(source.m_id)} {
     reset(source);
   }
 
   SurfaceLoader& operator=(SurfaceLoader&& rhs) noexcept {
     if (this != &rhs) {
       this->destroy_surface();
+      m_vk_instance = rhs.m_vk_instance;
       khr_surface = rhs.khr_surface;
+      m_id = std::move(rhs.m_id);
       reset(rhs);
     }
     return *this;
@@ -64,7 +67,7 @@ class SurfaceLoader {
     surface.m_vk_instance = VK_NULL_HANDLE;
   }
   void destroy_surface() const {
-    if (khr_surface != VK_NULL_HANDLE) {
+    if (m_vk_instance && khr_surface) {
       vkDestroySurfaceKHR(m_vk_instance, khr_surface, nullptr);
     }
   }

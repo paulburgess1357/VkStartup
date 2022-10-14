@@ -15,7 +15,7 @@ VkDebugger::~VkDebugger() {
 
 VkDebugger::VkDebugger(VkDebugger&& source) noexcept
     : m_vk_instance(source.m_vk_instance), m_debug_messenger{source.m_debug_messenger} {
-  reset();
+  source.reset();
 }
 
 VkDebugger& VkDebugger::operator=(VkDebugger&& rhs) noexcept {
