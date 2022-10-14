@@ -32,6 +32,7 @@ class InitContext {
  public:
   explicit InitContext(InitContextOptions options);
   [[nodiscard]] VkContext& context();
+  void remake_swapchain();
 
  private:
   void init();

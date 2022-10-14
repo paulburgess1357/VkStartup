@@ -20,6 +20,7 @@ VkDebugger::VkDebugger(VkDebugger&& source) noexcept
 
 VkDebugger& VkDebugger::operator=(VkDebugger&& rhs) noexcept {
   if (this != &rhs) {
+    this->destroy(m_vk_instance, m_debug_messenger, nullptr);
     m_vk_instance = rhs.m_vk_instance;
     m_debug_messenger = rhs.m_debug_messenger;
     rhs.reset();
@@ -56,6 +57,7 @@ void VkDebugger::init() {
   VkCheck(create_debug_messenger_ext(m_vk_instance, &create_info, nullptr, &m_debug_messenger),
           Exceptions::VkStartupException());
 }
+
 VkResult VkDebugger::create_debug_messenger_ext(VkInstance instance,
                                                 const VkDebugUtilsMessengerCreateInfoEXT* create_info,
                                                 const VkAllocationCallbacks* allocator,

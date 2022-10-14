@@ -28,6 +28,7 @@ class SurfaceLoader {
 
   SurfaceLoader& operator=(SurfaceLoader&& rhs) noexcept {
     if (this != &rhs) {
+      this->destroy_surface();
       khr_surface = rhs.khr_surface;
       reset(rhs);
     }

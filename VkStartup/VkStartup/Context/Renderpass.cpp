@@ -4,7 +4,8 @@
 
 namespace VkStartup {
 
-VkRenderPassHandle RenderpassBuilder::create_renderpass(const RenderpassData& data, VkDevice device) {
+VkRenderPassHandle RenderpassBuilder::create_renderpass(RenderpassData& data, VkDevice device,
+                                                        const bool implicit_transition) {
   auto info = CreateInfo::vk_renderpass_create_info();
 
   // Combine attachments
@@ -26,6 +27,10 @@ VkRenderPassHandle RenderpassBuilder::create_renderpass(const RenderpassData& da
   info.subpassCount = static_cast<uint32_t>(data.subpass_descs.size());
 
   // Load subpass dependencies
+  if (implicit_transition) {
+    add_implicit_transition_dependency(data);
+  }
+
   info.pDependencies = data.subpass_dependencies.data();
   info.dependencyCount = static_cast<uint32_t>(data.subpass_dependencies.size());
 
@@ -37,7 +42,7 @@ VkRenderPassHandle RenderpassBuilder::create_renderpass(const RenderpassData& da
     VkWarning("Renderpass does not contain any subpass descriptions");
   }
 
-  for (auto& subpass_desc : data.subpass_descs) {
+  for (const auto& subpass_desc : data.subpass_descs) {
     if (!subpass_desc.pColorAttachments) {
       VkWarning("Subpass descriprition does not contain a color attachment");
     }
@@ -51,6 +56,30 @@ VkRenderPassHandle RenderpassBuilder::create_renderpass(const RenderpassData& da
 #endif
 
   return VkRenderPassHandle{info, device};
+}
+
+void RenderpassBuilder::add_implicit_transition_dependency(RenderpassData& rp_data) {
+  // This is not needed if the renderpass being created waits to run
+  // by using the stage: VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT.  This ensures
+  // the image is available.  If a different stage is used, this implicit
+  // transition is necessary.  Its safest to add this to every renderpass.
+
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;  // implicit subpass before our first subpass
+  dependency.dstSubpass = 0;                    // refers to first subpass
+
+  // Source operations
+  // operation to wait on prior to img access (e.g. src must complete the following operation):
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.srcAccessMask = 0;
+
+  // Destination operations
+  // The destination stages that must wait on the above.  This means other destination
+  // operations and stages can run up until that point
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+  rp_data.subpass_dependencies.push_back(dependency);
 }
 
 }  // namespace VkStartup

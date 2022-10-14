@@ -36,8 +36,13 @@ struct RenderpassData {
   std::vector<VkSubpassDependency> subpass_dependencies{};
 };
 
-struct RenderpassBuilder {
-  [[nodiscard]] static VkRenderPassHandle create_renderpass(const RenderpassData& data, VkDevice device);
+class RenderpassBuilder {
+ public:
+  [[nodiscard]] static VkRenderPassHandle create_renderpass(RenderpassData& data, VkDevice device,
+                                                            const bool implicit_transition = true);
+
+ private:
+  static void add_implicit_transition_dependency(RenderpassData& rp_data);
 };
 
 }  // namespace VkStartup

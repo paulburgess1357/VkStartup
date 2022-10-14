@@ -211,6 +211,7 @@ void InitContext::init_swapchain() {
       vkGetSwapchainImagesKHR(m_ctx.device(), swap_ctx.swapchain(), &img_count, vk_imgs.data());
 
       // Set image views
+      img_views.clear();  // Handle remakes
       for (size_t i = 0; i < img_count; i++) {
         auto image_view_info = CreateInfo::vk_image_view_create_info(vk_imgs[i]);
         image_view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -222,6 +223,10 @@ void InitContext::init_swapchain() {
       }
     }
   }
+}
+
+void InitContext::remake_swapchain() {
+  init_swapchain();
 }
 
 void InitContext::init_vma() {
