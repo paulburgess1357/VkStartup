@@ -182,6 +182,11 @@ void InitContext::init_swapchain() {
       swap_ctx.swap_format_details = swap_ctx.surface_loader->select_swapchain_format(supported_swap_details);
       const auto& [format, present_mode, extent, image_count, pretransform, usage_flags] = swap_ctx.swap_format_details;
 
+      // No swapchain / images will be made when extent is zero
+      if (extent.height == 0 || extent.width == 0) {
+        break;
+      }
+
       // Initialize the swapchain using 'selected_swapchain_details'
       const auto unique_queues_vec = unique_queues();  // Sharing mode
       auto info = CreateInfo::vk_swapchain_create_info(unique_queues_vec);
@@ -225,8 +230,15 @@ void InitContext::init_swapchain() {
   }
 }
 
-void InitContext::remake_swapchain() {
+bool InitContext::remake_swapchain() {
   init_swapchain();
+  for (auto& [id, swap_ctx] : m_ctx.swap_ctx) {
+    const auto [width, height] = swap_ctx.swap_format_details.extent;
+    if (width == 0 || height == 0) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void InitContext::init_vma() {
