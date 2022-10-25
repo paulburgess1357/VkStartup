@@ -1,5 +1,5 @@
 #pragma once
-#include "VkStartup/Context/MemAlloc.h"
+#include "VkShared/MemAlloc.h"
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
