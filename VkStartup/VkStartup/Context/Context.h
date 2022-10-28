@@ -28,9 +28,14 @@ struct VkContext {
   PhysicalDeviceInfo phy_device_info{};
   VkDeviceHandle device{};
   std::unordered_map<VkShared::Enums::QueueFamily, QueueIndexHandle> queues{};
+
   // Multiple surfaces to be drawn to
   std::unordered_map<std::string, VkSwapchainContext> swap_ctx{};
   VmaAllocatorHandle mem_alloc{};
+
+  [[nodiscard]] VkExtent2D swap_extent(const std::string& id) const {
+    return swap_ctx.at(id).swap_format_details.extent;
+  }
 };
 
 }  // namespace VkStartup
