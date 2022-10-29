@@ -9,6 +9,7 @@
 #include <cstring>
 #include <algorithm>
 #include <type_traits>
+#include <ranges>
 
 namespace VkStartup {
 
@@ -98,7 +99,7 @@ void InitContext::init_logical_device() {
 
   // Populate queue family create info for each unique queue family
   std::unordered_set<uint32_t> unique_family_indices;
-  for (const auto& [family, family_index] : vk_queue_family_indices) {
+  for (const auto& family_index : vk_queue_family_indices | std::views::values) {
     unique_family_indices.insert(family_index);
   }
 
@@ -173,7 +174,7 @@ void InitContext::init_presentation() {
 void InitContext::init_swapchain() {
   // Initialize swapchain
   if (!m_ctx.swap_ctx.empty()) {
-    for (auto& [id, swap_ctx] : m_ctx.swap_ctx) {
+    for (auto& swap_ctx : m_ctx.swap_ctx | std::views::values) {
       // Supported swapchain details based on the user defined physical device selection
       const auto supported_swap_details = Swapchain::query_swap_support(m_ctx.phy_device_info.vk_phy_device,
                                                                         swap_ctx.surface_loader->surface());
@@ -232,13 +233,10 @@ void InitContext::init_swapchain() {
 
 bool InitContext::remake_swapchain() {
   init_swapchain();
-  for (auto& [id, swap_ctx] : m_ctx.swap_ctx) {
-    const auto [width, height] = swap_ctx.swap_format_details.extent;
-    if (width == 0 || height == 0) {
-      return false;
-    }
-  }
-  return true;
+  return std::ranges::any_of(m_ctx.swap_ctx.begin(), m_ctx.swap_ctx.end(), [](const auto& swap_ctx) {
+    const auto [width, height] = swap_ctx.second.swap_format_details.extent;
+    return !(width == 0 || height == 0);
+  });
 }
 
 void InitContext::init_vma() {
@@ -351,12 +349,12 @@ std::vector<uint32_t> InitContext::unique_queues() const {
   std::unordered_set<uint32_t> unique_queues;
 
   // Standard queues
-  for (const auto& [family, queue] : m_ctx.queues) {
-    unique_queues.insert(queue.family_index);
+  for (auto& [family_index, handle] : m_ctx.queues | std::views::values) {  // NOLINT(misc-misplaced-const)
+    unique_queues.insert(family_index);
   }
 
   // Swapchain queues (can vary if multiple surfaces)
-  for (const auto& [id, swap_ctx] : m_ctx.swap_ctx) {
+  for (const auto& swap_ctx : m_ctx.swap_ctx | std::views::values) {
     unique_queues.insert(swap_ctx.present_queue.family_index);
   }
 

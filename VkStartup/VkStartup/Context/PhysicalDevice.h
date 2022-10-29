@@ -3,8 +3,6 @@
 #include <VkShared/Enums.h>
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
-#include <type_traits>
 
 namespace VkStartup {
 

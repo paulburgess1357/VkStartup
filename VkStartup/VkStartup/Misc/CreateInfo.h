@@ -9,9 +9,7 @@ namespace VkStartup::CreateInfo {
                                                            const uint32_t api_version) {
   VkApplicationInfo info = {};
   info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  info.pApplicationName = "Vulkan";
   info.applicationVersion = app_version;
-  info.pEngineName = "Vulkan Engine";
   info.engineVersion = engine_version;
   info.apiVersion = api_version;
   return info;
