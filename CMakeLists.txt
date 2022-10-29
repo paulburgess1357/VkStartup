@@ -14,7 +14,7 @@ set_target_properties(${TargetName} PROPERTIES DEBUG_POSTFIX d)
 
 target_compile_options(${TargetName} PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wno-unknown-pragmas -Wextra -Wpedantic>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wno-unknown-pragmas -Wextra -Wpedantic -Werror>
 )
 
 set(IncludeDirectories 
@@ -58,8 +58,8 @@ if (NOT TARGET ${DEP_VkShared})
 	message("\nCloning VkShared... (GitHub SSH key setup required)")
 	FetchContent_Declare(
 	${DEP_VkShared}
-    #GIT_REPOSITORY git@github.com:paulburgess1357/VkShared.git
-    SOURCE_DIR "C:/Users/paulb/Desktop/git projects vulkan/VkShared"
+    GIT_REPOSITORY git@github.com:paulburgess1357/VkShared.git
+    #SOURCE_DIR "C:/Users/paulb/Desktop/git projects vulkan/VkShared"
 	GIT_TAG        master
 	)
 	set(VkSharedFetchContentRepo True)

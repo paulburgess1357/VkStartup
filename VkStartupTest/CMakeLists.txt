@@ -13,7 +13,7 @@ set_target_properties(${TargetName} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 target_compile_options(${TargetName} PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wno-unknown-pragmas -Wextra -Wpedantic>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wno-unknown-pragmas -Wextra -Wpedantic -Werror>
 )
 
 set(DEP_VkShared VkShared)
