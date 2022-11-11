@@ -43,6 +43,7 @@ class RenderpassBuilder {
 
  private:
   static void add_implicit_transition_dependency(RenderpassData& rp_data);
+  static void add_depth_transition_dependency(RenderpassData& rp_data);
 };
 
 }  // namespace VkStartup

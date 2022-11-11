@@ -30,6 +30,10 @@ VkRenderPassHandle RenderpassBuilder::create_renderpass(RenderpassData& data, Vk
   if (implicit_transition) {
     add_implicit_transition_dependency(data);
   }
+  // Depth subpass dependency
+  if (data.depth_attachment.format != VK_FORMAT_UNDEFINED) {
+    add_depth_transition_dependency(data);
+  }
 
   info.pDependencies = data.subpass_dependencies.data();
   info.dependencyCount = static_cast<uint32_t>(data.subpass_dependencies.size());
@@ -79,6 +83,17 @@ void RenderpassBuilder::add_implicit_transition_dependency(RenderpassData& rp_da
   dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
   dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
+  rp_data.subpass_dependencies.push_back(dependency);
+}
+
+void RenderpassBuilder::add_depth_transition_dependency(RenderpassData& rp_data) {
+  VkSubpassDependency dependency = {};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+  dependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
   rp_data.subpass_dependencies.push_back(dependency);
 }
 

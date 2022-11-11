@@ -95,7 +95,8 @@ void InitContext::init_physical_device() {
 }
 
 void InitContext::init_logical_device() {
-  auto& [vk_physical_device, vk_queue_family_indices, features_to_activate, device_extensions] = m_ctx.phy_device_info;
+  auto& [vk_physical_device, vk_queue_family_indices, features_to_activate, device_extensions, depth_format,
+         stencil_support] = m_ctx.phy_device_info;
 
   // Populate queue family create info for each unique queue family
   std::unordered_set<uint32_t> unique_family_indices;

@@ -11,6 +11,8 @@ struct PhysicalDeviceInfo {
   std::unordered_map<VkShared::Enums::QueueFamily, uint32_t> vk_queue_family_indices{};
   VkPhysicalDeviceFeatures features_to_activate = {};
   std::vector<const char*> device_ext = {};
+  VkFormat depth_format{VK_FORMAT_UNDEFINED};
+  bool depth_format_supports_stencil{false};
 };
 
 class PhysicalDevice {
@@ -33,6 +35,8 @@ class PhysicalDevice {
 
   VkPhysicalDevice m_vk_physical_device{VK_NULL_HANDLE};
   VkPhysicalDeviceFeatures m_device_features_to_activate = {};
+  VkFormat m_depth_format{VK_FORMAT_UNDEFINED};
+  bool m_depth_supports_stencil{false};
 
   std::vector<const char*> m_desired_device_ext{};
   std::vector<const char*> m_required_device_ext{};
@@ -40,6 +44,7 @@ class PhysicalDevice {
  private:
   virtual void select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) = 0;
   virtual void set_features_to_activate() = 0;
+  virtual void set_depth_format() = 0;
 
   void select_physical_device();
   void set_queue_indices();
@@ -63,6 +68,7 @@ class PhysicalDeviceDefault final : public PhysicalDevice {
  private:
   void select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) override;
   void set_features_to_activate() override;
+  void set_depth_format() override;
   [[nodiscard]] static bool device_meets_requirements(VkPhysicalDevice device,
                                                       const VkPhysicalDeviceFeatures& device_features);
 };

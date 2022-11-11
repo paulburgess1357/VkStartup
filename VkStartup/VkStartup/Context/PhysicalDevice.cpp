@@ -23,6 +23,8 @@ PhysicalDeviceInfo PhysicalDevice::info() {
   info.vk_queue_family_indices = m_queue_indices;
   info.features_to_activate = m_device_features_to_activate;
   info.device_ext = device_ext_to_use(m_vk_physical_device);
+  info.depth_format = m_depth_format;
+  info.depth_format_supports_stencil = m_depth_supports_stencil;
   return info;
 }
 
@@ -43,6 +45,9 @@ void PhysicalDevice::select_physical_device() {
 
   // Store features to activate later
   set_features_to_activate();
+
+  // Store depth format
+  set_depth_format();
 
   // Set queue indices
   set_queue_indices();
@@ -209,6 +214,36 @@ bool PhysicalDeviceDefault::device_meets_requirements(VkPhysicalDevice device,
 
 void PhysicalDeviceDefault::set_features_to_activate() {
   m_device_features_to_activate.geometryShader = VK_TRUE;
+}
+
+void PhysicalDeviceDefault::set_depth_format() {
+  const std::vector formats{VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+  constexpr VkImageTiling tiling{VK_IMAGE_TILING_OPTIMAL};
+  constexpr VkFormatFeatureFlags feature_flags{VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT};
+
+  for (const auto format : formats) {
+    VkFormatProperties props;
+    vkGetPhysicalDeviceFormatProperties(m_vk_physical_device, format, &props);
+
+    // ReSharper disable once CppRedundantBooleanExpressionArgument
+    if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & feature_flags) == feature_flags) {
+      m_depth_format = format;
+      break;
+    }
+
+    // ReSharper disable once CppUnreachableCode
+    if constexpr (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & feature_flags) == feature_flags) {
+      m_depth_format = format;
+      break;
+    }
+  }
+
+  // Assert suitable depth format located
+  VkAssert(m_depth_format != VK_FORMAT_UNDEFINED, "Unable to select a suitable depth format");
+
+  // Indicate is selected depth format supports stencil
+  m_depth_supports_stencil = m_depth_format == VK_FORMAT_D32_SFLOAT_S8_UINT ||
+                             m_depth_format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
 }  // namespace VkStartup
