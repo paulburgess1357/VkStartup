@@ -61,8 +61,7 @@ endif()
 
 # Clone VkShared
 set(DEP_VkShared VkShared)
-if (NOT TARGET ${DEP_VkShared})
-	message("\nCloning VkShared... (GitHub SSH key setup required)")
+if (NOT TARGET ${DEP_VkShared})	
 	if(PB_LOCAL)
 		message("Local Build")
 		FetchContent_Declare(
@@ -71,6 +70,7 @@ if (NOT TARGET ${DEP_VkShared})
 		GIT_TAG        master
 		)
 	else()
+		message("\nCloning VkShared... (GitHub SSH key setup required)")
 		FetchContent_Declare(
 		${DEP_VkShared}
 		GIT_REPOSITORY git@github.com:paulburgess1357/VkShared.git
