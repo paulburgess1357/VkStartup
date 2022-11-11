@@ -61,9 +61,6 @@ endif()
 
 # Clone VkShared
 set(DEP_VkShared VkShared)
-message("TEST")
-message(${PB_LOCAL_PATH}${DEP_VkShared})
-message("END TEST")
 if (NOT TARGET ${DEP_VkShared})
 	message("\nCloning VkShared... (GitHub SSH key setup required)")
 	if(PB_LOCAL)
