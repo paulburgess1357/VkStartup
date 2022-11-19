@@ -139,14 +139,15 @@ For a full example, build and run the test project `VkStartupTest`:
 [VkStartupTest Example](https://github.com/paulburgess1357/VkStartup/blob/master/VkStartupTest/VkStartupTest/VkStartupTest/main.cpp)
 
 ```
+
 #include "VkStartup/Context/InitContext.h"
 #include "VkStartupTest/GLFWSurfaceLoader.h"
 #include "VkStartupTest/Exceptions.h"
 
 int main() {
-  VulkanUtilities::VkStartup::InitContextOptions options;
+  VkStartup::InitContextOptions options;
   options.enable_validation = true;
-  options.desired_device_extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+  options.desired_device_ext.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
   // Any windowing system is fine.  This example shows GLFW:
   glfwInit();
@@ -155,16 +156,16 @@ int main() {
 
   if (!window) {
     glfwTerminate();
-    throw VulkanUtilities::VkStartupTest::Exceptions::VkStartupTestException();
+    throw VkStartupTest::Exceptions::VkStartupTestException();
   }
 
   // Load custom surface loader & extensions into options
-  options.custom_surface_loaders.emplace_back(std::make_unique<VulkanUtilities::VkStartupTest::GLFWSurfaceLoader>(*window, "main_window"));
-  options.custom_surface_loaders.emplace_back(std::make_unique<VulkanUtilities::VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
-  options.required_instance_extensions = VulkanUtilities::VkStartupTest::GLFWSurfaceLoader::extensions();
+  options.surface_loaders.emplace_back(std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window"));
+  // options.surface_loaders.emplace_back(std::make_unique<VkStartupTest::GLFWSurfaceLoader>(*window, "main_window2"));
+  options.required_instance_ext = VkStartupTest::GLFWSurfaceLoader::extensions();
 
   // Create context
-  VulkanUtilities::VkStartup::InitContext context{std::move(options)};
+  VkStartup::InitContext context{std::move(options)};
 
   glfwDestroyWindow(window);
   return 0;
@@ -181,14 +182,13 @@ The user can rely on the default physical device selection or create their own p
 ```
 class PhysicalDeviceDefault final : public PhysicalDevice {
  public:
-  explicit PhysicalDeviceDefault(VkInstance instance, std::vector<const char*> desired_device_extension,
-                                 std::vector<const char*> required_device_extensions)
-      : PhysicalDevice{instance, std::move(desired_device_extension), std::move(required_device_extensions)} {
-  }
+  explicit PhysicalDeviceDefault(VkInstance instance, std::vector<const char*> desired_device_ext,
+                                 std::vector<const char*> required_device_ext);
 
  private:
   void select_best_physical_device(const std::vector<VkPhysicalDevice>& devices) override;
   void set_features_to_activate() override;
+  void set_depth_format() override;
   [[nodiscard]] static bool device_meets_requirements(VkPhysicalDevice device,
                                                       const VkPhysicalDeviceFeatures& device_features);
 };
